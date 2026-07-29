@@ -1,16 +1,46 @@
-# React + Vite
+# DTHRIFT Studio - Frontend Storefront 🚀
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+**Developed and maintained by Manav Gujral**
 
-Currently, two official plugins are available:
+This is the React frontend for the **DTHRIFT Studio** e-commerce platform. It provides an immersive user experience for browsing vintage collections, viewing archive items, handling user authentication, managing cart items, and executing secure checkouts.
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+## 🛠 Tech Stack
+* **Framework:** React.js (Vite)
+* **Styling:** CSS / Modern Responsive Design
+* **Routing:** React Router
+* **API Client:** Fetch API / Axios
 
-## React Compiler
+## 📦 Features
+* **Catalog & Categories:** Browse curated vintage pieces, jackets, jerseys, hoodies, and denim.
+* **User Authentication:** Secure sign-up and login system linked with live automated welcome emails.
+* **Interactive Cart & Checkout:** Seamless inventory updating and order flow.
+* **Responsive Design:** Optimized for both mobile and desktop viewports.
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## 🔑 Environment Variables / Configuration
+To connect this frontend to your live backend, ensure your API requests point to your deployed backend URL (e.g., your Render web service URL):
+```javascript
+[https://dthrift-backend.onrender.com](https://dthrift-backend.onrender.com)
+💻 Local Setup & Installation
+Clone the repository:
 
-## Expanding the ESLint configuration
+Bash
+git clone [https://github.com/ManavGujral/dthrift-frontend.git](https://github.com/ManavGujral/dthrift-frontend.git)
+cd dthrift-frontend
+Install dependencies:
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+Bash
+npm install
+Start the development server:
+
+Bash
+npm run dev
+The application will launch on http://localhost:3000 (or your configured Vite local port).
+
+☁️ Deployment
+This frontend is optimized for deployment on Vercel.
+
+Build Command: npm run build
+
+Output Directory: dist
+
+Frontend Architecture by Manav Gujral | DTHRIFT Studio © 2026
