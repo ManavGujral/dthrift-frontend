@@ -313,7 +313,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- NAVBAR (Fully Responsive & Compact) --- */}
+      {/* --- NAVBAR (Optimized Layout for Mobile) --- */}
       <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-3 sm:px-8 py-3 sm:py-4 flex justify-between items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/5">
         <div className="flex items-center gap-2 sm:gap-6">
           <button 
@@ -326,30 +326,24 @@ export default function Home({ products = [], onOrderSuccess }) {
 
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase hidden sm:block cursor-pointer"
+            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase flex items-center gap-1 cursor-pointer"
           >
-            SEARCH
+            <span className="sm:hidden text-sm">🔍</span>
+            <span className="hidden sm:inline">SEARCH</span>
           </button>
         </div>
 
         <a 
           href="#" 
-          className="text-base sm:text-xl md:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all truncate mx-2"
+          className="text-sm sm:text-xl md:text-2xl font-serif tracking-[0.2em] sm:tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all truncate mx-1"
         >
           DTHRIFT
         </a>
 
-        <div className="flex items-center gap-3 sm:gap-6 relative">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase sm:hidden cursor-pointer"
-          >
-            SEARCH
-          </button>
-
+        <div className="flex items-center gap-2.5 sm:gap-6 relative">
           {currentUser ? (
             <div className="relative group">
-              <button className="text-[11px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
+              <button className="text-[10px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
                 HI, {currentUser.name.split(" ")[0]} ▾
               </button>
               
@@ -365,18 +359,19 @@ export default function Home({ products = [], onOrderSuccess }) {
           ) : (
             <button
               onClick={() => setAuthMode("signup")}
-              className="text-[11px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer"
+              className="text-[10px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer flex items-center gap-1"
             >
-              ACCOUNT
+              <span className="sm:hidden text-xs">👤</span>
+              <span className="hidden sm:inline">ACCOUNT</span>
             </button>
           )}
 
           <button
             onClick={() => setIsCartOpen(true)}
-            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer bg-amber-600/10 sm:bg-transparent px-2 py-1 sm:p-0 rounded border border-amber-500/20 sm:border-0"
+            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1 cursor-pointer bg-amber-600/10 px-2 py-1 rounded border border-amber-500/20"
           >
-            <span>BAG</span>
-            <span className="bg-[#c5a059] text-black text-[10px] px-1.5 py-0.2 font-bold rounded-full">
+            <span className="text-[10px]">BAG</span>
+            <span className="bg-[#c5a059] text-black text-[9px] px-1.5 py-0.2 font-bold rounded-full">
               {cart.reduce((a, b) => a + b.quantity, 0)}
             </span>
           </button>
