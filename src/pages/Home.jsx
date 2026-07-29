@@ -313,20 +313,20 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- NAVBAR --- */}
-      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-6 sm:px-12 py-6 flex justify-between items-center bg-[#0c0d0e]/90 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center gap-6 sm:gap-10">
+      {/* --- NAVBAR (Fully Responsive & Compact) --- */}
+      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-3 sm:px-8 py-3 sm:py-4 flex justify-between items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/5">
+        <div className="flex items-center gap-2 sm:gap-6">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="group flex items-center gap-2 text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-all uppercase cursor-pointer"
+            className="group flex items-center gap-1.5 text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-all uppercase cursor-pointer py-1"
           >
-            <span className="text-xl leading-none text-[#c5a059]">≡</span>
-            <span>MENU</span>
+            <span className="text-base sm:text-lg leading-none text-[#c5a059]">≡</span>
+            <span className="hidden sm:inline">MENU</span>
           </button>
 
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase hidden sm:block cursor-pointer"
+            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase hidden sm:block cursor-pointer"
           >
             SEARCH
           </button>
@@ -334,26 +334,25 @@ export default function Home({ products = [], onOrderSuccess }) {
 
         <a 
           href="#" 
-          className="text-xl sm:text-2xl font-serif tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all"
+          className="text-base sm:text-xl md:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all truncate mx-2"
         >
           DTHRIFT
         </a>
 
-        <div className="flex items-center gap-6 relative">
+        <div className="flex items-center gap-3 sm:gap-6 relative">
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase sm:hidden cursor-pointer"
+            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase sm:hidden cursor-pointer"
           >
             SEARCH
           </button>
 
           {currentUser ? (
             <div className="relative group">
-              <button className="text-xs font-mono tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
+              <button className="text-[11px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
                 HI, {currentUser.name.split(" ")[0]} ▾
               </button>
               
-              {/* DROPDOWN MENU FIX APPLIED HERE */}
               <div className="absolute right-0 top-full w-36 bg-[#141619] border border-white/10 shadow-xl rounded-sm hidden group-hover:block py-2 z-50">
                 <button
                   onMouseDown={handleLogout}
@@ -366,7 +365,7 @@ export default function Home({ products = [], onOrderSuccess }) {
           ) : (
             <button
               onClick={() => setAuthMode("signup")}
-              className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer hidden sm:block"
+              className="text-[11px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer"
             >
               ACCOUNT
             </button>
@@ -374,10 +373,10 @@ export default function Home({ products = [], onOrderSuccess }) {
 
           <button
             onClick={() => setIsCartOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-2 cursor-pointer"
+            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer bg-amber-600/10 sm:bg-transparent px-2 py-1 sm:p-0 rounded border border-amber-500/20 sm:border-0"
           >
             <span>BAG</span>
-            <span className="bg-[#c5a059] text-black text-[10px] px-2 py-0.5 font-bold rounded-full">
+            <span className="bg-[#c5a059] text-black text-[10px] px-1.5 py-0.2 font-bold rounded-full">
               {cart.reduce((a, b) => a + b.quantity, 0)}
             </span>
           </button>
@@ -559,9 +558,9 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- CATEGORY EXPLORER MODAL --- */}
+      {/* --- CATEGORY EXPLORER MODAL (Responsive Auto-Fit Grid) --- */}
       {selectedCategory && (
-        <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
+        <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-4 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
           <div className="flex justify-between items-center max-w-7xl mx-auto w-full mb-8 pt-12 sm:pt-0">
             <span className="text-xs font-mono tracking-[0.4em] text-[#c5a059] uppercase">
               Category / {selectedCategory}
@@ -574,7 +573,10 @@ export default function Home({ products = [], onOrderSuccess }) {
             </button>
           </div>
 
-          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+          <div 
+            className="max-w-7xl mx-auto w-full grid gap-4 sm:gap-8"
+            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))" }}
+          >
             {products
               .filter((p) => {
                 if (!p.category) return false;
@@ -586,32 +588,32 @@ export default function Home({ products = [], onOrderSuccess }) {
                 <div
                   key={item.id}
                   onClick={() => setSelectedProduct(item)}
-                  className="group bg-[#181a1e] border border-zinc-700 rounded-sm cursor-pointer p-4 hover:border-[#c5a059] transition-all duration-300 hover:-translate-y-2 shadow-2xl"
+                  className="group bg-[#181a1e] border border-zinc-700 rounded-sm cursor-pointer p-3 sm:p-4 hover:border-[#c5a059] transition-all duration-300 hover:-translate-y-2 shadow-2xl"
                 >
-                  <div className="aspect-[3/4] overflow-hidden mb-4 relative bg-zinc-900 border border-zinc-800">
+                  <div className="aspect-[3/4] overflow-hidden mb-3 sm:mb-4 relative bg-zinc-900 border border-zinc-800">
                     <img
                       src={item.img}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       onError={(e) => handleImageError(e, item)}
                     />
-                    <span className={`absolute top-2 left-2 text-[10px] tracking-widest px-2.5 py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
+                    <span className={`absolute top-2 left-2 text-[9px] sm:text-[10px] tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
                       Number(item.stock) === 0 ? "bg-rose-950/90 text-rose-400 border-rose-500/50" : "bg-black/90 text-[#c5a059] border-white/20"
                     }`}>
                       {Number(item.stock) === 0 ? "SOLD OUT" : `Stock: ${item.stock} left`}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-start pt-2">
+                  <div className="flex justify-between items-start pt-1 sm:pt-2">
                     <div>
-                      <h4 className="text-sm tracking-widest text-white uppercase font-serif font-bold group-hover:text-[#c5a059] transition-colors">
+                      <h4 className="text-xs sm:text-sm tracking-widest text-white uppercase font-serif font-bold group-hover:text-[#c5a059] transition-colors">
                         {item.title}
                       </h4>
-                      <p className="text-[10px] text-amber-500/80 mt-1 uppercase tracking-wider font-mono">
+                      <p className="text-[9px] sm:text-[10px] text-amber-500/85 mt-0.5 uppercase tracking-wider font-mono">
                         {item.category}
                       </p>
                     </div>
-                    <span className="text-sm font-mono text-[#c5a059] font-bold">
+                    <span className="text-xs sm:text-sm font-mono text-[#c5a059] font-bold">
                       ₹{Number(item.price).toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -784,7 +786,7 @@ export default function Home({ products = [], onOrderSuccess }) {
       )}
 
       {/* --- MAIN PAGE CONTENT --- */}
-      <main className="pt-28 px-4 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
+      <main className="pt-24 sm:pt-28 px-3 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
         
         {/* COUNTDOWN BANNER */}
         <section 
@@ -831,8 +833,11 @@ export default function Home({ products = [], onOrderSuccess }) {
           </div>
         </section>
 
-        {/* --- 4-COLUMN HERO GRID --- */}
-        <section className="reveal-item grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* --- DYNAMIC RESPONSIVE HERO GRID --- */}
+        <section 
+          className="reveal-item grid gap-6"
+          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))" }}
+        >
           {[
             {
               id: "card-jackets",
