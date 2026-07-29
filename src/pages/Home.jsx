@@ -313,37 +313,43 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- NAVBAR (Optimized Layout for Mobile) --- */}
-      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-3 sm:px-8 py-3 sm:py-4 flex justify-between items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center gap-2 sm:gap-6">
+      {/* --- NAVBAR --- */}
+      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-6 sm:px-12 py-6 flex justify-between items-center bg-[#0c0d0e]/90 backdrop-blur-md border-b border-white/5">
+        <div className="flex items-center gap-6 sm:gap-10">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="group flex items-center gap-1.5 text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-all uppercase cursor-pointer py-1"
+            className="group flex items-center gap-2 text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-all uppercase cursor-pointer"
           >
-            <span className="text-base sm:text-lg leading-none text-[#c5a059]">≡</span>
-            <span className="hidden sm:inline">MENU</span>
+            <span className="text-xl leading-none text-[#c5a059]">≡</span>
+            <span>MENU</span>
           </button>
 
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-widest text-gray-400 hover:text-white transition-colors uppercase flex items-center gap-1 cursor-pointer"
+            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase hidden sm:block cursor-pointer"
           >
-            <span className="sm:hidden text-sm">🔍</span>
-            <span className="hidden sm:inline">SEARCH</span>
+            SEARCH
           </button>
         </div>
 
         <a 
           href="#" 
-          className="text-sm sm:text-xl md:text-2xl font-serif tracking-[0.2em] sm:tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all truncate mx-1"
+          className="text-xl sm:text-2xl font-serif tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all"
         >
           DTHRIFT
         </a>
 
-        <div className="flex items-center gap-2.5 sm:gap-6 relative">
+        <div className="flex items-center gap-6 relative">
+          <button
+            onClick={() => setIsSearchOpen(true)}
+            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase sm:hidden cursor-pointer"
+          >
+            SEARCH
+          </button>
+
           {currentUser ? (
             <div className="relative group">
-              <button className="text-[10px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
+              <button className="text-xs font-mono tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
                 HI, {currentUser.name.split(" ")[0]} ▾
               </button>
               
@@ -359,19 +365,18 @@ export default function Home({ products = [], onOrderSuccess }) {
           ) : (
             <button
               onClick={() => setAuthMode("signup")}
-              className="text-[10px] sm:text-xs font-mono tracking-wider sm:tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer flex items-center gap-1"
+              className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer hidden sm:block"
             >
-              <span className="sm:hidden text-xs">👤</span>
-              <span className="hidden sm:inline">ACCOUNT</span>
+              ACCOUNT
             </button>
           )}
 
           <button
             onClick={() => setIsCartOpen(true)}
-            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1 cursor-pointer bg-amber-600/10 px-2 py-1 rounded border border-amber-500/20"
+            className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-2 cursor-pointer"
           >
-            <span className="text-[10px]">BAG</span>
-            <span className="bg-[#c5a059] text-black text-[9px] px-1.5 py-0.2 font-bold rounded-full">
+            <span>BAG</span>
+            <span className="bg-[#c5a059] text-black text-[10px] px-2 py-0.5 font-bold rounded-full">
               {cart.reduce((a, b) => a + b.quantity, 0)}
             </span>
           </button>
@@ -553,25 +558,24 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- CATEGORY EXPLORER MODAL (Responsive Auto-Fit Grid) --- */}
+      {/* --- CATEGORY EXPLORER MODAL --- */}
       {selectedCategory && (
-        <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-4 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
-          <div className="flex justify-between items-center max-w-7xl mx-auto w-full mb-8 pt-12 sm:pt-0">
+        <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
+          
+          {/* Top Bar with Clear Fixed Close Button for Mobile */}
+          <div className="flex justify-between items-center max-w-7xl mx-auto w-full mb-8 pt-4 sm:pt-0 sticky top-0 bg-black/90 py-4 z-20 border-b border-white/10">
             <span className="text-xs font-mono tracking-[0.4em] text-[#c5a059] uppercase">
               Category / {selectedCategory}
             </span>
             <button
               onClick={() => setSelectedCategory(null)}
-              className="text-white text-xs font-mono hover:text-[#c5a059] transition-colors border border-white/20 px-5 py-2.5 hover:border-[#c5a059] cursor-pointer"
+              className="text-white text-xs font-mono tracking-widest hover:text-[#c5a059] transition-colors border border-white/20 px-4 py-2 hover:border-[#c5a059] cursor-pointer bg-black"
             >
               ✕ CLOSE
             </button>
           </div>
 
-          <div 
-            className="max-w-7xl mx-auto w-full grid gap-4 sm:gap-8"
-            style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 160px), 1fr))" }}
-          >
+          <div className="max-w-7xl mx-auto w-full grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {products
               .filter((p) => {
                 if (!p.category) return false;
@@ -583,32 +587,32 @@ export default function Home({ products = [], onOrderSuccess }) {
                 <div
                   key={item.id}
                   onClick={() => setSelectedProduct(item)}
-                  className="group bg-[#181a1e] border border-zinc-700 rounded-sm cursor-pointer p-3 sm:p-4 hover:border-[#c5a059] transition-all duration-300 hover:-translate-y-2 shadow-2xl"
+                  className="group bg-[#181a1e] border border-zinc-700 rounded-sm cursor-pointer p-4 hover:border-[#c5a059] transition-all duration-300 hover:-translate-y-2 shadow-2xl"
                 >
-                  <div className="aspect-[3/4] overflow-hidden mb-3 sm:mb-4 relative bg-zinc-900 border border-zinc-800">
+                  <div className="aspect-[3/4] overflow-hidden mb-4 relative bg-zinc-900 border border-zinc-800">
                     <img
                       src={item.img}
                       alt={item.title}
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       onError={(e) => handleImageError(e, item)}
                     />
-                    <span className={`absolute top-2 left-2 text-[9px] sm:text-[10px] tracking-widest px-2 py-0.5 sm:px-2.5 sm:py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
+                    <span className={`absolute top-2 left-2 text-[10px] tracking-widest px-2.5 py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
                       Number(item.stock) === 0 ? "bg-rose-950/90 text-rose-400 border-rose-500/50" : "bg-black/90 text-[#c5a059] border-white/20"
                     }`}>
                       {Number(item.stock) === 0 ? "SOLD OUT" : `Stock: ${item.stock} left`}
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-start pt-1 sm:pt-2">
+                  <div className="flex justify-between items-start pt-2">
                     <div>
-                      <h4 className="text-xs sm:text-sm tracking-widest text-white uppercase font-serif font-bold group-hover:text-[#c5a059] transition-colors">
+                      <h4 className="text-sm tracking-widest text-white uppercase font-serif font-bold group-hover:text-[#c5a059] transition-colors">
                         {item.title}
                       </h4>
-                      <p className="text-[9px] sm:text-[10px] text-amber-500/85 mt-0.5 uppercase tracking-wider font-mono">
+                      <p className="text-[10px] text-amber-500/80 mt-1 uppercase tracking-wider font-mono">
                         {item.category}
                       </p>
                     </div>
-                    <span className="text-xs sm:text-sm font-mono text-[#c5a059] font-bold">
+                    <span className="text-sm font-mono text-[#c5a059] font-bold">
                       ₹{Number(item.price).toLocaleString("en-IN")}
                     </span>
                   </div>
@@ -621,10 +625,23 @@ export default function Home({ products = [], onOrderSuccess }) {
       {/* --- PRODUCT INSPECT MODAL --- */}
       {selectedProduct && (
         <div className="fixed inset-0 z-[1003] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
-          <div className="bg-[#141619] border border-white/10 max-w-2xl w-full p-6 sm:p-8 rounded-sm relative grid grid-cols-1 md:grid-cols-2 gap-6 shadow-2xl animate-[scaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)]">
+          <div className="bg-[#141619] border border-white/10 max-w-2xl w-full p-6 sm:p-8 rounded-sm relative grid grid-cols-1 md:grid-cols-2 gap-6 shadow-2xl animate-[scaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] overflow-y-auto">
+            
+            {/* Top Bar for Close Button on Mobile */}
+            <div className="col-span-full flex justify-between items-center pb-2 border-b border-white/10 md:hidden">
+              <span className="text-[10px] font-mono tracking-widest text-[#c5a059] uppercase">Product Details</span>
+              <button
+                onClick={() => { setSelectedProduct(null); setActiveTab("details"); }}
+                className="text-white text-xs font-mono tracking-widest hover:text-[#c5a059] cursor-pointer"
+              >
+                ✕ CLOSE
+              </button>
+            </div>
+
+            {/* Desktop Close Button */}
             <button
               onClick={() => { setSelectedProduct(null); setActiveTab("details"); }}
-              className="absolute top-4 right-4 text-gray-400 hover:text-white text-xs font-mono hover:rotate-90 transition-transform cursor-pointer"
+              className="hidden md:block absolute top-4 right-4 text-gray-400 hover:text-white text-xs font-mono hover:rotate-90 transition-transform cursor-pointer"
             >
               ✕ CLOSE
             </button>
@@ -781,7 +798,7 @@ export default function Home({ products = [], onOrderSuccess }) {
       )}
 
       {/* --- MAIN PAGE CONTENT --- */}
-      <main className="pt-24 sm:pt-28 px-3 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
+      <main className="pt-28 px-4 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
         
         {/* COUNTDOWN BANNER */}
         <section 
@@ -828,11 +845,8 @@ export default function Home({ products = [], onOrderSuccess }) {
           </div>
         </section>
 
-        {/* --- DYNAMIC RESPONSIVE HERO GRID --- */}
-        <section 
-          className="reveal-item grid gap-6"
-          style={{ gridTemplateColumns: "repeat(auto-fit, minmax(min(100%, 250px), 1fr))" }}
-        >
+        {/* --- 4-COLUMN HERO GRID --- */}
+        <section className="reveal-item grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
             {
               id: "card-jackets",
@@ -905,34 +919,74 @@ export default function Home({ products = [], onOrderSuccess }) {
           ))}
         </section>
 
-        {/* --- FOOTER --- */}
-        <footer className="reveal-item mt-24 pt-10 border-t border-white/10 font-sans text-[10px] tracking-[0.25em] text-gray-400 uppercase">
-          <div className="flex flex-col lg:flex-row justify-between items-center gap-8 mb-12">
-            <div className="text-[10px] font-mono text-gray-500 tracking-widest uppercase">
-              DTHRIFT ARCHIVES // EST. 2026
+        {/* --- LUXURY BRAND FOOTER --- */}
+        <footer className="reveal-item mt-28 pt-16 pb-12 border-t border-white/10 bg-[#090a0b] text-gray-400 font-sans text-xs tracking-wider uppercase">
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
+            
+            {/* Col 1: Brand Info */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-serif tracking-[0.3em] text-[#f1ece1] font-bold">DTHRIFT</h3>
+              <p className="text-[11px] text-gray-400 font-mono tracking-widest leading-relaxed normal-case">
+                Curated archival luxury, vintage streetwear, and rare statement pieces. Est. 2026.
+              </p>
+              <div className="pt-2 text-[10px] font-mono text-[#c5a059]">
+                SUPPORT: {PHONE_NUMBER}
+              </div>
             </div>
 
-            <div className="flex flex-wrap gap-8 text-[10px]">
-              <button 
-                onClick={() => setShowContactModal(true)} 
-                className="hover:text-[#c5a059] transition-colors uppercase cursor-pointer"
-              >
-                Contact
-              </button>
-              <a 
-                href={INSTAGRAM_URL} 
-                target="_blank" 
-                rel="noopener noreferrer" 
-                className="hover:text-[#c5a059] transition-colors uppercase"
-              >
-                Instagram
-              </a>
+            {/* Col 2: Quick Links */}
+            <div className="space-y-4">
+              <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">Explore</h4>
+              <ul className="space-y-2.5 text-[11px] font-mono">
+                <li><button onClick={() => setSelectedCategory("JACKETS")} className="hover:text-white transition-colors cursor-pointer">Jackets & Outerwear</button></li>
+                <li><button onClick={() => setSelectedCategory("HOODIES")} className="hover:text-white transition-colors cursor-pointer">Heavyweight Hoodies</button></li>
+                <li><button onClick={() => setSelectedCategory("JEANS")} className="hover:text-white transition-colors cursor-pointer">Vintage Denim</button></li>
+                <li><button onClick={() => setSelectedCategory("JERSEY")} className="hover:text-white transition-colors cursor-pointer">Archival Jerseys</button></li>
+              </ul>
             </div>
+
+            {/* Col 3: Customer Care */}
+            <div className="space-y-4">
+              <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">Client Services</h4>
+              <ul className="space-y-2.5 text-[11px] font-mono">
+                <li><button onClick={() => setShowContactModal(true)} className="hover:text-white transition-colors cursor-pointer">VIP Support & Inquiries</button></li>
+                <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram Drops</a></li>
+                <li><button onClick={() => setAuthMode("signup")} className="hover:text-white transition-colors cursor-pointer">My Account</button></li>
+              </ul>
+            </div>
+
+            {/* Col 4: Newsletter / Brand Statement */}
+            <div className="space-y-4">
+              <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">The Vault</h4>
+              <p className="text-[10px] font-mono text-gray-400 normal-case leading-relaxed">
+                Subscribe for private drop access and early inventory alerts.
+              </p>
+              <div className="flex items-center border border-white/20 rounded-sm bg-black overflow-hidden focus-within:border-[#c5a059] transition-colors">
+                <input 
+                  type="email" 
+                  placeholder="ENTER YOUR EMAIL" 
+                  className="bg-transparent px-3 py-2 text-[10px] font-mono text-white placeholder-gray-600 focus:outline-none w-full uppercase"
+                />
+                <button 
+                  onClick={() => alert("Subscribed successfully to DTHRIFT Archives.")}
+                  className="bg-[#c5a059] text-black px-4 py-2 text-[10px] font-mono font-bold uppercase hover:bg-[#ebd494] transition-colors cursor-pointer"
+                >
+                  Join
+                </button>
+              </div>
+            </div>
+
           </div>
 
-          <div className="flex justify-between items-center pt-6 border-t border-white/5 text-[9px] text-gray-500 font-mono">
-            <span>DTHRIFT Studio</span>
-            <span>&copy; 2026 All Rights Reserved</span>
+          {/* Bottom Sub-Footer Bar */}
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-mono text-gray-500">
+            <div>
+              DTHRIFT STUDIO &copy; 2026 // ALL RIGHTS RESERVED
+            </div>
+            <div className="flex gap-6">
+              <span>SECURE RAZORPAY ENCRYPTION</span>
+              <span>AUTHENTIC VINTAGE GUARANTEE</span>
+            </div>
           </div>
         </footer>
 
