@@ -33,6 +33,7 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
+  const [selectedSize, setSelectedSize] = useState("M"); // Added state for brand-style sizes (S, M, L, XL)
 
   const PHONE_NUMBER = "+91 73872 02668";
   const INSTAGRAM_URL = "https://www.instagram.com/dthriftdrops/";
@@ -99,7 +100,7 @@ export default function Home({ products = [], onOrderSuccess }) {
 
   const addToCart = (product) => {
     const currentStock = products.find((p) => p.id === product.id)?.stock || 0;
-    const currentInCart = cart.find((item) => item.id === product.id)?.quantity || 0;
+    const currentInCart = cart.find((item) => item.id === product.id && item.size === selectedSize)?.quantity || 0;
 
     if (currentInCart >= currentStock) {
       alert(`Only ${currentStock} piece(s) available in stock!`);
@@ -107,19 +108,19 @@ export default function Home({ products = [], onOrderSuccess }) {
     }
 
     setCart((prev) => {
-      const exists = prev.find((item) => item.id === product.id);
+      const exists = prev.find((item) => item.id === product.id && item.size === selectedSize);
       if (exists) {
         return prev.map((item) =>
-          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id && item.size === selectedSize ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
-      return [...prev, { ...product, quantity: 1 }];
+      return [...prev, { ...product, size: selectedSize, quantity: 1 }];
     });
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (id) => {
-    setCart((prev) => prev.filter((item) => item.id !== id));
+  const removeFromCart = (id, size) => {
+    setCart((prev) => prev.filter((item) => !(item.id === id && item.size === size)));
   };
 
   const totalAmount = cart.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0);
@@ -173,7 +174,7 @@ export default function Home({ products = [], onOrderSuccess }) {
             id: data.orderId || `ORD-${Date.now()}`,
             paymentId: response.razorpay_payment_id,
             customer: currentUser ? currentUser.name : "Verified Customer",
-            items: cart.map((i) => `${i.title} (x${i.quantity})`).join(", "),
+            items: cart.map((i) => `${i.title} [${i.size}] (x${i.quantity})`).join(", "),
             itemCount: cart.reduce((acc, curr) => acc + curr.quantity, 0),
             amount: totalAmount,
             status: "Paid",
@@ -691,26 +692,48 @@ export default function Home({ products = [], onOrderSuccess }) {
                 <p className="text-lg font-mono text-[#c5a059] mb-4">₹{Number(selectedProduct.price).toLocaleString("en-IN")}</p>
                 
                 {activeTab === "details" ? (
-                  <p className="text-xs text-gray-400 font-sans leading-relaxed mb-6">
-                    {selectedProduct.description || "Archival high-grade garment carefully curated and inspected for authentic vintage silhouette and wear."}
-                  </p>
+                  <div>
+                    <p className="text-xs text-gray-400 font-sans leading-relaxed mb-4">
+                      {selectedProduct.description || "Archival high-grade garment carefully curated and inspected for authentic vintage silhouette and wear."}
+                    </p>
+
+                    {/* --- BRAND STYLE SIZE SELECTOR (S M L XL) --- */}
+                    <div className="mb-6">
+                      <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase block mb-2">Select Size</span>
+                      <div className="flex gap-2">
+                        {["S", "M", "L", "XL"].map((size) => (
+                          <button
+                            key={size}
+                            onClick={() => setSelectedSize(size)}
+                            className={`w-10 h-10 text-xs font-mono tracking-wider uppercase border transition-all cursor-pointer flex items-center justify-center rounded-sm ${
+                              selectedSize === size
+                                ? "border-[#c5a059] bg-[#c5a059] text-black font-bold shadow-md"
+                                : "border-white/20 bg-white/5 text-white hover:border-[#c5a059]"
+                            }`}
+                          >
+                            {size}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
                 ) : (
-                  <div className="space-y-2 mb-6 font-mono text-[10px] text-gray-300 bg-white/5 p-3 rounded-sm border border-white/5">
-                    <div className="flex justify-between border-b border-white/5 pb-1">
-                      <span className="text-gray-500">CHEST / PIT TO PIT:</span>
-                      <span className="text-[#c5a059]">22.0 INCHES</span>
+                  <div className="space-y-3 mb-6 font-mono text-xs text-gray-200 bg-white/5 p-4 rounded-sm border border-white/10 shadow-inner">
+                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                      <span className="text-gray-400 tracking-wider">CHEST / PIT TO PIT:</span>
+                      <span className="text-[#c5a059] font-bold">22.0 INCHES</span>
                     </div>
-                    <div className="flex justify-between border-b border-white/5 pb-1">
-                      <span className="text-gray-500">LENGTH:</span>
-                      <span className="text-[#c5a059]">28.5 INCHES</span>
+                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                      <span className="text-gray-400 tracking-wider">LENGTH:</span>
+                      <span className="text-[#c5a059] font-bold">28.5 INCHES</span>
                     </div>
-                    <div className="flex justify-between border-b border-white/5 pb-1">
-                      <span className="text-gray-500">SHOULDER:</span>
-                      <span className="text-[#c5a059]">19.5 INCHES</span>
+                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                      <span className="text-gray-400 tracking-wider">SHOULDER:</span>
+                      <span className="text-[#c5a059] font-bold">19.5 INCHES</span>
                     </div>
-                    <div className="flex justify-between">
-                      <span className="text-gray-500">CONDITION:</span>
-                      <span className="text-emerald-400">9.5/10 VINTAGE</span>
+                    <div className="flex justify-between items-center pt-1">
+                      <span className="text-gray-400 tracking-wider">CONDITION:</span>
+                      <span className="text-emerald-400 font-bold">9.5/10 VINTAGE</span>
                     </div>
                   </div>
                 )}
@@ -725,7 +748,7 @@ export default function Home({ products = [], onOrderSuccess }) {
                 disabled={(products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0}
                 className="w-full font-sans text-[10px] tracking-[0.35em] uppercase border border-[#c5a059] bg-[#c5a059] text-black py-4 hover:bg-transparent hover:text-[#c5a059] transition-all font-semibold disabled:opacity-30 disabled:hover:bg-[#c5a059] disabled:hover:text-black active:scale-95 cursor-pointer"
               >
-                {(products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0 ? "OUT OF STOCK" : "Add To Bag"}
+                {(products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0 ? "OUT OF STOCK" : `Add To Bag (${selectedSize})`}
               </button>
             </div>
           </div>
@@ -756,7 +779,7 @@ export default function Home({ products = [], onOrderSuccess }) {
               ) : (
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                   {cart.map((item) => (
-                    <div key={item.id} className="flex justify-between items-center bg-white/5 p-3 rounded-sm border border-white/5 hover:border-white/10 transition-colors">
+                    <div key={`${item.id}-${item.size}`} className="flex justify-between items-center bg-white/5 p-3 rounded-sm border border-white/5 hover:border-white/10 transition-colors">
                       <div className="flex items-center gap-3">
                         <img 
                           src={item.img} 
@@ -766,13 +789,14 @@ export default function Home({ products = [], onOrderSuccess }) {
                         />
                         <div>
                           <h4 className="text-xs font-serif tracking-wider text-white uppercase">{item.title}</h4>
+                          <p className="text-[10px] font-mono text-[#c5a059] mt-0.5">SIZE: {item.size}</p>
                           <p className="text-[10px] font-mono text-gray-400">
                             ₹{Number(item.price).toLocaleString("en-IN")} x {item.quantity}
                           </p>
                         </div>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id)}
+                        onClick={() => removeFromCart(item.id, item.size)}
                         className="text-rose-400 text-xs font-mono hover:text-rose-300 cursor-pointer"
                       >
                         Remove
