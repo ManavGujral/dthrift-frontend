@@ -46,17 +46,10 @@ export default function Home({ products = [], onOrderSuccess }) {
     XL: { chest: "25.0 INCHES", length: "30.5 INCHES", shoulder: "22.5 INCHES" },
   };
 
+  // Fixed Image Error Handler to prevent overriding correct database product photos
   const handleImageError = (e, item) => {
-    e.target.onerror = null;
-    const title = (item?.title || "").toUpperCase();
-    
-    if (title.includes("BASKETBALL")) {
-      e.target.src = "https://images.unsplash.com/photo-1546519638-68e109498ffc?auto=format&fit=crop&q=80&w=800";
-    } else if (title.includes("HOCKEY") || title.includes("CANADA") || title.includes("GRETZKY")) {
-      e.target.src = "https://images.unsplash.com/photo-1580748512586-b4d241ef51dc?auto=format&fit=crop&q=80&w=800";
-    } else if (title.includes("MANNHEIM") || title.includes("LONG-SLEEVE")) {
-      e.target.src = "https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?auto=format&fit=crop&q=80&w=800";
-    } else {
+    e.target.onerror = null; 
+    if (!e.target.src || e.target.src.trim() === "" || e.target.src.includes("undefined")) {
       e.target.src = "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=800";
     }
   };
@@ -957,7 +950,7 @@ export default function Home({ products = [], onOrderSuccess }) {
           ))}
         </section>
 
-        {/* --- LUXURY BRAND STYLE FOOTER RESTORED --- */}
+        {/* --- LUXURY BRAND STYLE FOOTER --- */}
         <footer className="reveal-item mt-28 pt-16 pb-12 border-t border-white/10 bg-[#090a0b] text-gray-400 font-sans text-xs tracking-wider uppercase">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             
