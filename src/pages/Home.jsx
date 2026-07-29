@@ -33,10 +33,18 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
-  const [selectedSize, setSelectedSize] = useState("M"); // Added state for brand-style sizes (S, M, L, XL)
+  const [selectedSize, setSelectedSize] = useState("M"); // Size state
 
   const PHONE_NUMBER = "+91 73872 02668";
   const INSTAGRAM_URL = "https://www.instagram.com/dthriftdrops/";
+
+  // Size-specific measurements mapping
+  const sizeMeasurements = {
+    S: { chest: "20.5 INCHES", length: "27.0 INCHES", shoulder: "18.0 INCHES" },
+    M: { chest: "22.0 INCHES", length: "28.5 INCHES", shoulder: "19.5 INCHES" },
+    L: { chest: "23.5 INCHES", length: "29.5 INCHES", shoulder: "21.0 INCHES" },
+    XL: { chest: "25.0 INCHES", length: "30.5 INCHES", shoulder: "22.5 INCHES" },
+  };
 
   const handleImageError = (e, item) => {
     e.target.onerror = null;
@@ -103,7 +111,7 @@ export default function Home({ products = [], onOrderSuccess }) {
     const currentInCart = cart.find((item) => item.id === product.id && item.size === selectedSize)?.quantity || 0;
 
     if (currentInCart >= currentStock) {
-      alert(`Only ${currentStock} piece(s) available in stock!`);
+      alert(`Only ${currentStock} piece(s) available in stock for size ${selectedSize}!`);
       return;
     }
 
@@ -174,7 +182,7 @@ export default function Home({ products = [], onOrderSuccess }) {
             id: data.orderId || `ORD-${Date.now()}`,
             paymentId: response.razorpay_payment_id,
             customer: currentUser ? currentUser.name : "Verified Customer",
-            items: cart.map((i) => `${i.title} [${i.size}] (x${i.quantity})`).join(", "),
+            items: cart.map((i) => `${i.title} [Size: ${i.size}] (x${i.quantity})`).join(", "),
             itemCount: cart.reduce((acc, curr) => acc + curr.quantity, 0),
             amount: totalAmount,
             status: "Paid",
@@ -699,7 +707,7 @@ export default function Home({ products = [], onOrderSuccess }) {
 
                     {/* --- BRAND STYLE SIZE SELECTOR (S M L XL) --- */}
                     <div className="mb-6">
-                      <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase block mb-2">Select Size</span>
+                      <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase block mb-2">Select Size ({selectedSize})</span>
                       <div className="flex gap-2">
                         {["S", "M", "L", "XL"].map((size) => (
                           <button
@@ -719,17 +727,20 @@ export default function Home({ products = [], onOrderSuccess }) {
                   </div>
                 ) : (
                   <div className="space-y-3 mb-6 font-mono text-xs text-gray-200 bg-white/5 p-4 rounded-sm border border-white/10 shadow-inner">
-                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div className="text-[10px] text-[#c5a059] tracking-widest uppercase mb-1 pb-1 border-b border-white/10">
+                      Measurements for Size: {selectedSize}
+                    </div>
+                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
                       <span className="text-gray-400 tracking-wider">CHEST / PIT TO PIT:</span>
-                      <span className="text-[#c5a059] font-bold">22.0 INCHES</span>
+                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].chest}</span>
                     </div>
-                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
                       <span className="text-gray-400 tracking-wider">LENGTH:</span>
-                      <span className="text-[#c5a059] font-bold">28.5 INCHES</span>
+                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].length}</span>
                     </div>
-                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
+                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
                       <span className="text-gray-400 tracking-wider">SHOULDER:</span>
-                      <span className="text-[#c5a059] font-bold">19.5 INCHES</span>
+                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].shoulder}</span>
                     </div>
                     <div className="flex justify-between items-center pt-1">
                       <span className="text-gray-400 tracking-wider">CONDITION:</span>
