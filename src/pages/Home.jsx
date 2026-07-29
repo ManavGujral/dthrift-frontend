@@ -313,47 +313,48 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- NAVBAR --- */}
-      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-6 sm:px-12 py-6 flex justify-between items-center bg-[#0c0d0e]/90 backdrop-blur-md border-b border-white/5">
-        <div className="flex items-center gap-6 sm:gap-10">
+      {/* --- HEADER: CENTERED LOGO, MOBILE ICONS --- */}
+      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-4 sm:px-10 py-4 grid grid-cols-3 items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/10">
+        
+        {/* Left Side: Menu & Search */}
+        <div className="flex items-center gap-4 sm:gap-6 justify-start">
           <button 
             onClick={() => setIsMenuOpen(true)}
-            className="group flex items-center gap-2 text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-all uppercase cursor-pointer"
+            className="flex items-center gap-2 text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer"
           >
-            <span className="text-xl leading-none text-[#c5a059]">≡</span>
-            <span>MENU</span>
+            <span className="text-lg text-[#c5a059]">≡</span>
+            <span className="hidden sm:inline">MENU</span>
           </button>
 
           <button
             onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase hidden sm:block cursor-pointer"
+            className="text-xs font-mono tracking-widest text-gray-300 hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer"
+            title="Search"
           >
-            SEARCH
+            <span className="sm:hidden text-sm">🔍</span>
+            <span className="hidden sm:inline">SEARCH</span>
           </button>
         </div>
 
-        <a 
-          href="#" 
-          className="text-xl sm:text-2xl font-serif tracking-[0.4em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all"
-        >
-          DTHRIFT
-        </a>
-
-        <div className="flex items-center gap-6 relative">
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-gray-400 hover:text-white transition-colors uppercase sm:hidden cursor-pointer"
+        {/* Center: Brand Logo */}
+        <div className="flex justify-center">
+          <a 
+            href="#" 
+            className="text-lg sm:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.35em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all text-center"
           >
-            SEARCH
-          </button>
+            DTHRIFT
+          </a>
+        </div>
 
+        {/* Right Side: Account & Bag */}
+        <div className="flex items-center gap-4 sm:gap-6 justify-end">
           {currentUser ? (
             <div className="relative group">
-              <button className="text-xs font-mono tracking-[0.25em] text-[#c5a059] transition-colors uppercase cursor-pointer py-2">
+              <button className="text-xs font-mono tracking-widest text-[#c5a059] transition-colors uppercase cursor-pointer py-1">
                 HI, {currentUser.name.split(" ")[0]} ▾
               </button>
               
-              <div className="absolute right-0 top-full w-36 bg-[#141619] border border-white/10 shadow-xl rounded-sm hidden group-hover:block py-2 z-50">
+              <div className="absolute right-0 top-full w-36 bg-[#141619] border border-white/10 shadow-2xl rounded-sm hidden group-hover:block py-2 z-50">
                 <button
                   onMouseDown={handleLogout}
                   className="w-full text-left px-4 py-2 text-[10px] font-mono tracking-widest text-rose-400 hover:bg-white/5 transition-colors uppercase cursor-pointer"
@@ -365,18 +366,20 @@ export default function Home({ products = [], onOrderSuccess }) {
           ) : (
             <button
               onClick={() => setAuthMode("signup")}
-              className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer hidden sm:block"
+              className="text-xs font-mono tracking-widest text-gray-300 hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer"
+              title="Account"
             >
-              ACCOUNT
+              <span className="sm:hidden text-sm">👤</span>
+              <span className="hidden sm:inline">ACCOUNT</span>
             </button>
           )}
 
           <button
             onClick={() => setIsCartOpen(true)}
-            className="text-xs font-mono tracking-[0.25em] text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-2 cursor-pointer"
+            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer bg-white/5 px-3 py-1.5 rounded-sm border border-white/10"
           >
             <span>BAG</span>
-            <span className="bg-[#c5a059] text-black text-[10px] px-2 py-0.5 font-bold rounded-full">
+            <span className="bg-[#c5a059] text-black text-[10px] px-1.5 py-0.2 font-bold rounded-full">
               {cart.reduce((a, b) => a + b.quantity, 0)}
             </span>
           </button>
@@ -919,7 +922,7 @@ export default function Home({ products = [], onOrderSuccess }) {
           ))}
         </section>
 
-        {/* --- LUXURY BRAND FOOTER --- */}
+        {/* --- LUXURY BRAND STYLE FOOTER RESTORED --- */}
         <footer className="reveal-item mt-28 pt-16 pb-12 border-t border-white/10 bg-[#090a0b] text-gray-400 font-sans text-xs tracking-wider uppercase">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             
