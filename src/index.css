@@ -1,0 +1,12 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    background-color: #e3ded8;
+    color: #000000;
+    font-family: 'Cinzel', 'Playfair Display', Didot, Georgia, serif;
+    -webkit-font-smoothing: antialiased;
+  }
+}
