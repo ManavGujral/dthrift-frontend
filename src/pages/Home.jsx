@@ -200,7 +200,7 @@ export default function Home({ products = [], onOrderSuccess }) {
           }
         },
         prefill: {
-          contact: "7387202668",
+          contact: "", // HARDCODED NUMBER REMOVED HERE
           name: currentUser ? currentUser.name : "",
           email: currentUser ? currentUser.email : "",
         },
