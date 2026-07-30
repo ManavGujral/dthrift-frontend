@@ -146,7 +146,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         name: "DTHRIFT",
         description: "Order Payment",
         order_id: orderData.id,
-        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=200",
+        image: "/IMG_6260.PNG", // UPDATED: Now points to your company logo
         handler: async function (response) {
           try {
             const apiRes = await fetch("https://dthrift-backend.onrender.com/api/verify-payment", {
