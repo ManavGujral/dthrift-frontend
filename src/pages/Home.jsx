@@ -16,7 +16,6 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
-  // Logout Function Added
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem("token"); 
@@ -33,20 +32,13 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [selectedCategory, setSelectedCategory] = useState(null);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
-  const [selectedSize, setSelectedSize] = useState("M"); // Size state
+
+  // Free Size constant
+  const selectedSize = "FREE SIZE";
 
   const PHONE_NUMBER = "+91 73872 02668";
   const INSTAGRAM_URL = "https://www.instagram.com/dthriftdrops/";
 
-  // Size-specific measurements mapping
-  const sizeMeasurements = {
-    S: { chest: "20.5 INCHES", length: "27.0 INCHES", shoulder: "18.0 INCHES" },
-    M: { chest: "22.0 INCHES", length: "28.5 INCHES", shoulder: "19.5 INCHES" },
-    L: { chest: "23.5 INCHES", length: "29.5 INCHES", shoulder: "21.0 INCHES" },
-    XL: { chest: "25.0 INCHES", length: "30.5 INCHES", shoulder: "22.5 INCHES" },
-  };
-
-  // Fixed Image Error Handler to prevent overriding correct database product photos
   const handleImageError = (e, item) => {
     e.target.onerror = null; 
     if (!e.target.src || e.target.src.trim() === "" || e.target.src.includes("undefined")) {
@@ -101,18 +93,18 @@ export default function Home({ products = [], onOrderSuccess }) {
 
   const addToCart = (product) => {
     const currentStock = products.find((p) => p.id === product.id)?.stock || 0;
-    const currentInCart = cart.find((item) => item.id === product.id && item.size === selectedSize)?.quantity || 0;
+    const currentInCart = cart.find((item) => item.id === product.id)?.quantity || 0;
 
     if (currentInCart >= currentStock) {
-      alert(`Only ${currentStock} piece(s) available in stock for size ${selectedSize}!`);
+      alert(`Only ${currentStock} piece(s) available in stock!`);
       return;
     }
 
     setCart((prev) => {
-      const exists = prev.find((item) => item.id === product.id && item.size === selectedSize);
+      const exists = prev.find((item) => item.id === product.id);
       if (exists) {
         return prev.map((item) =>
-          item.id === product.id && item.size === selectedSize ? { ...item, quantity: item.quantity + 1 } : item
+          item.id === product.id ? { ...item, quantity: item.quantity + 1 } : item
         );
       }
       return [...prev, { ...product, size: selectedSize, quantity: 1 }];
@@ -120,13 +112,13 @@ export default function Home({ products = [], onOrderSuccess }) {
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (id, size) => {
-    setCart((prev) => prev.filter((item) => !(item.id === id && item.size === size)));
+  const removeFromCart = (id) => {
+    setCart((prev) => prev.filter((item) => item.id !== id));
   };
 
   const totalAmount = cart.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0);
 
-  const handleCheckout = () => {
+  const handleCheckout = async () => {
     if (cart.length === 0) return;
 
     if (!window.Razorpay) {
@@ -134,79 +126,102 @@ export default function Home({ products = [], onOrderSuccess }) {
       return;
     }
 
-    const options = {
-      key: "rzp_test_THIYaRtmaw8L2O",
-      amount: totalAmount * 100,
-      currency: "INR",
-      name: "DTHRIFT",
-      description: "Order Payment",
-      image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=200",
-      handler: async function (response) {
-        try {
-          const apiRes = await fetch("https://dthrift-backend.onrender.com/api/checkout", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              paymentId: response.razorpay_payment_id,
-              customerName: currentUser ? currentUser.name : "Verified Customer",
-              items: cart,
-              amount: totalAmount,
-            }),
-          });
+    try {
+      const orderRes = await fetch("https://dthrift-backend.onrender.com/api/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ amount: totalAmount }),
+      });
+      
+      const orderData = await orderRes.json();
 
-          const data = await apiRes.json();
+      if (!orderRes.ok) {
+        throw new Error(orderData.error || "Failed to create order");
+      }
 
-          if (!apiRes.ok || !data.success) {
-            throw new Error(data.error || "Checkout processing failed.");
-          }
+      const options = {
+        key: import.meta.env?.VITE_RAZORPAY_KEY_ID || process.env.REACT_APP_RAZORPAY_KEY_ID || "rzp_test_THIYaRtmaw8L2O",
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: "DTHRIFT",
+        description: "Order Payment",
+        order_id: orderData.id,
+        image: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=200",
+        handler: async function (response) {
+          try {
+            const apiRes = await fetch("https://dthrift-backend.onrender.com/api/verify-payment", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_signature: response.razorpay_signature,
+                items: cart, 
+              }),
+            });
 
-          const updatedProducts = products.map((prod) => {
-            const cartItem = cart.find((c) => c.id === prod.id);
-            if (cartItem) {
-              const newStock = Math.max(0, prod.stock - cartItem.quantity);
-              return { ...prod, stock: newStock };
+            const data = await apiRes.json();
+
+            if (!apiRes.ok || !data.success) {
+              throw new Error(data.error || "Payment verification failed.");
             }
-            return prod;
-          });
 
-          const newOrder = {
-            id: data.orderId || `ORD-${Date.now()}`,
-            paymentId: response.razorpay_payment_id,
-            customer: currentUser ? currentUser.name : "Verified Customer",
-            items: cart.map((i) => `${i.title} [Size: ${i.size}] (x${i.quantity})`).join(", "),
-            itemCount: cart.reduce((acc, curr) => acc + curr.quantity, 0),
-            amount: totalAmount,
-            status: "Paid",
-            city: "India",
-            date: new Date().toISOString().replace("T", " ").substring(0, 16),
-          };
+            const updatedProducts = products.map((prod) => {
+              const cartItem = cart.find((c) => c.id === prod.id);
+              if (cartItem) {
+                const newStock = Math.max(0, prod.stock - cartItem.quantity);
+                return { ...prod, stock: newStock };
+              }
+              return prod;
+            });
 
-          if (onOrderSuccess) {
-            onOrderSuccess(newOrder, updatedProducts);
+            const newOrder = {
+              id: orderData.id,
+              paymentId: response.razorpay_payment_id,
+              customer: currentUser ? currentUser.name : "Verified Customer",
+              items: cart.map((i) => `${i.title} [${i.size}] (x${i.quantity})`).join(", "),
+              itemCount: cart.reduce((acc, curr) => acc + curr.quantity, 0),
+              amount: totalAmount,
+              status: "Paid",
+              city: "India",
+              date: new Date().toISOString().replace("T", " ").substring(0, 16),
+            };
+
+            if (onOrderSuccess) {
+              onOrderSuccess(newOrder, updatedProducts);
+            }
+
+            alert(`Payment Successful! Order recorded live in PostgreSQL.`);
+            setCart([]);
+            setIsCartOpen(false);
+          } catch (err) {
+            console.error("Verification Error:", err);
+            alert("Payment verified, but server record creation failed: " + err.message);
           }
+        },
+        prefill: {
+          contact: "7387202668",
+          name: currentUser ? currentUser.name : "",
+          email: currentUser ? currentUser.email : "",
+        },
+        theme: {
+          color: "#c5a059",
+        },
+      };
 
-          alert(`Payment Successful! Order recorded live in PostgreSQL.`);
-          setCart([]);
-          setIsCartOpen(false);
-        } catch (err) {
-          console.error("Checkout Error:", err);
-          alert("Payment verified, but server record creation failed: " + err.message);
-        }
-      },
-      prefill: {
-        contact: "7387202668",
-        name: currentUser ? currentUser.name : "",
-        email: currentUser ? currentUser.email : "",
-      },
-      theme: {
-        color: "#c5a059",
-      },
-    };
+      const paymentObject = new window.Razorpay(options);
+      
+      paymentObject.on('payment.failed', function (response) {
+        console.error("Payment Failed:", response.error);
+        alert(`Payment Failed: ${response.error.description}`);
+      });
 
-    const paymentObject = new window.Razorpay(options);
-    paymentObject.open();
+      paymentObject.open();
+
+    } catch (error) {
+      console.error("Checkout Error:", error);
+      alert("Something went wrong initiating checkout: " + error.message);
+    }
   };
 
   useEffect(() => {
@@ -315,10 +330,8 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- HEADER: CENTERED LOGO, MOBILE ICONS --- */}
+      {/* --- HEADER --- */}
       <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-4 sm:px-10 py-4 grid grid-cols-3 items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/10">
-        
-        {/* Left Side: Menu & Search */}
         <div className="flex items-center gap-4 sm:gap-6 justify-start">
           <button 
             onClick={() => setIsMenuOpen(true)}
@@ -338,7 +351,6 @@ export default function Home({ products = [], onOrderSuccess }) {
           </button>
         </div>
 
-        {/* Center: Brand Logo */}
         <div className="flex justify-center">
           <a 
             href="#" 
@@ -348,7 +360,6 @@ export default function Home({ products = [], onOrderSuccess }) {
           </a>
         </div>
 
-        {/* Right Side: Account & Bag */}
         <div className="flex items-center gap-4 sm:gap-6 justify-end">
           {currentUser ? (
             <div className="relative group">
@@ -567,7 +578,6 @@ export default function Home({ products = [], onOrderSuccess }) {
       {selectedCategory && (
         <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
           
-          {/* Top Bar with Clear Fixed Close Button for Mobile */}
           <div className="flex justify-between items-center max-w-7xl mx-auto w-full mb-8 pt-4 sm:pt-0 sticky top-0 bg-black/90 py-4 z-20 border-b border-white/10">
             <span className="text-xs font-mono tracking-[0.4em] text-[#c5a059] uppercase">
               Category / {selectedCategory}
@@ -632,7 +642,6 @@ export default function Home({ products = [], onOrderSuccess }) {
         <div className="fixed inset-0 z-[1003] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
           <div className="bg-[#141619] border border-white/10 max-w-2xl w-full p-6 sm:p-8 rounded-sm relative grid grid-cols-1 md:grid-cols-2 gap-6 shadow-2xl animate-[scaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] overflow-y-auto">
             
-            {/* Top Bar for Close Button on Mobile */}
             <div className="col-span-full flex justify-between items-center pb-2 border-b border-white/10 md:hidden">
               <span className="text-[10px] font-mono tracking-widest text-[#c5a059] uppercase">Product Details</span>
               <button
@@ -643,7 +652,6 @@ export default function Home({ products = [], onOrderSuccess }) {
               </button>
             </div>
 
-            {/* Desktop Close Button */}
             <button
               onClick={() => { setSelectedProduct(null); setActiveTab("details"); }}
               className="hidden md:block absolute top-4 right-4 text-gray-400 hover:text-white text-xs font-mono hover:rotate-90 transition-transform cursor-pointer"
@@ -694,46 +702,27 @@ export default function Home({ products = [], onOrderSuccess }) {
                 
                 {activeTab === "details" ? (
                   <div>
-                    <p className="text-xs text-gray-400 font-sans leading-relaxed mb-4">
+                    <p className="text-xs text-gray-400 font-sans leading-relaxed mb-6">
                       {selectedProduct.description || "Archival high-grade garment carefully curated and inspected for authentic vintage silhouette and wear."}
                     </p>
-
-                    {/* --- BRAND STYLE SIZE SELECTOR (S M L XL) --- */}
-                    <div className="mb-6">
-                      <span className="text-[10px] font-mono tracking-widest text-gray-400 uppercase block mb-2">Select Size ({selectedSize})</span>
-                      <div className="flex gap-2">
-                        {["S", "M", "L", "XL"].map((size) => (
-                          <button
-                            key={size}
-                            onClick={() => setSelectedSize(size)}
-                            className={`w-10 h-10 text-xs font-mono tracking-wider uppercase border transition-all cursor-pointer flex items-center justify-center rounded-sm ${
-                              selectedSize === size
-                                ? "border-[#c5a059] bg-[#c5a059] text-black font-bold shadow-md"
-                                : "border-white/20 bg-white/5 text-white hover:border-[#c5a059]"
-                            }`}
-                          >
-                            {size}
-                          </button>
-                        ))}
-                      </div>
+                    <div className="mb-4 inline-block border border-[#c5a059]/50 bg-[#c5a059]/10 px-3 py-1.5 rounded-sm">
+                      <span className="text-[10px] font-mono tracking-widest text-[#c5a059] uppercase">
+                        Size: {selectedSize}
+                      </span>
                     </div>
                   </div>
                 ) : (
                   <div className="space-y-3 mb-6 font-mono text-xs text-gray-200 bg-white/5 p-4 rounded-sm border border-white/10 shadow-inner">
                     <div className="text-[10px] text-[#c5a059] tracking-widest uppercase mb-1 pb-1 border-b border-white/10">
-                      Measurements for Size: {selectedSize}
+                      Measurements for: {selectedSize}
                     </div>
                     <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                      <span className="text-gray-400 tracking-wider">CHEST / PIT TO PIT:</span>
-                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].chest}</span>
+                      <span className="text-gray-400 tracking-wider">FIT:</span>
+                      <span className="text-[#c5a059] font-bold">RELAXED / OVERSIZED</span>
                     </div>
                     <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                      <span className="text-gray-400 tracking-wider">LENGTH:</span>
-                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].length}</span>
-                    </div>
-                    <div className="flex justify-between items-center border-b border-white/5 pb-2">
-                      <span className="text-gray-400 tracking-wider">SHOULDER:</span>
-                      <span className="text-[#c5a059] font-bold">{sizeMeasurements[selectedSize].shoulder}</span>
+                      <span className="text-gray-400 tracking-wider">NOTE:</span>
+                      <span className="text-[#c5a059] font-bold text-right ml-4">DESIGNED TO FIT MOST BODY TYPES</span>
                     </div>
                     <div className="flex justify-between items-center pt-1">
                       <span className="text-gray-400 tracking-wider">CONDITION:</span>
@@ -783,7 +772,7 @@ export default function Home({ products = [], onOrderSuccess }) {
               ) : (
                 <div className="space-y-4 max-h-[60vh] overflow-y-auto pr-2">
                   {cart.map((item) => (
-                    <div key={`${item.id}-${item.size}`} className="flex justify-between items-center bg-white/5 p-3 rounded-sm border border-white/5 hover:border-white/10 transition-colors">
+                    <div key={`${item.id}`} className="flex justify-between items-center bg-white/5 p-3 rounded-sm border border-white/5 hover:border-white/10 transition-colors">
                       <div className="flex items-center gap-3">
                         <img 
                           src={item.img} 
@@ -800,7 +789,7 @@ export default function Home({ products = [], onOrderSuccess }) {
                         </div>
                       </div>
                       <button
-                        onClick={() => removeFromCart(item.id, item.size)}
+                        onClick={() => removeFromCart(item.id)}
                         className="text-rose-400 text-xs font-mono hover:text-rose-300 cursor-pointer"
                       >
                         Remove
@@ -954,7 +943,6 @@ export default function Home({ products = [], onOrderSuccess }) {
         <footer className="reveal-item mt-28 pt-16 pb-12 border-t border-white/10 bg-[#090a0b] text-gray-400 font-sans text-xs tracking-wider uppercase">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             
-            {/* Col 1: Brand Info */}
             <div className="space-y-4">
               <h3 className="text-lg font-serif tracking-[0.3em] text-[#f1ece1] font-bold">DTHRIFT</h3>
               <p className="text-[11px] text-gray-400 font-mono tracking-widest leading-relaxed normal-case">
@@ -965,7 +953,6 @@ export default function Home({ products = [], onOrderSuccess }) {
               </div>
             </div>
 
-            {/* Col 2: Quick Links */}
             <div className="space-y-4">
               <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">Explore</h4>
               <ul className="space-y-2.5 text-[11px] font-mono">
@@ -976,7 +963,6 @@ export default function Home({ products = [], onOrderSuccess }) {
               </ul>
             </div>
 
-            {/* Col 3: Customer Care */}
             <div className="space-y-4">
               <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">Client Services</h4>
               <ul className="space-y-2.5 text-[11px] font-mono">
@@ -986,7 +972,6 @@ export default function Home({ products = [], onOrderSuccess }) {
               </ul>
             </div>
 
-            {/* Col 4: Newsletter / Brand Statement */}
             <div className="space-y-4">
               <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">The Vault</h4>
               <p className="text-[10px] font-mono text-gray-400 normal-case leading-relaxed">
@@ -1009,7 +994,6 @@ export default function Home({ products = [], onOrderSuccess }) {
 
           </div>
 
-          {/* Bottom Sub-Footer Bar */}
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8 border-t border-white/5 flex flex-col sm:flex-row justify-between items-center gap-4 text-[9px] font-mono text-gray-500">
             <div>
               DTHRIFT STUDIO &copy; 2026 // ALL RIGHTS RESERVED
