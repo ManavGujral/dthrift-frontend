@@ -1029,9 +1029,9 @@ export default function Home({ products = [], onOrderSuccess }) {
             {
               id: "card-jeans",
               title: "JEANS",
-              subtitle: "Vintage Denim & Relaxed Fits",
+              subtitle: "Vintage Black Baggy ",
               accent: "from-blue-950/40",
-              img: "https://images.unsplash.com/photo-1602293589930-45aad59ba3ab?auto=format&fit=crop&q=80&w=1200",
+              img: "/images/IMG_Jeans.png",
             },
             {
               id: "card-jersey",
