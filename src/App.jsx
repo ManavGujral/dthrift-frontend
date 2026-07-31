@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from "react";
 import Home from "./pages/Home.jsx";
 import AdminDashboard from "./pages/AdminDashboard.jsx";
+import LaunchCelebration from "./components/LaunchCelebration.jsx";
 
 export default function App() {
   const [isAdmin, setIsAdmin] = useState(false);
@@ -65,6 +66,8 @@ export default function App() {
 
   return (
     <div className="app-container">
+      <LaunchCelebration />
+      
       {showPasswordModal && (
         <div className="fixed inset-0 z-[9999] bg-black/90 backdrop-blur-md flex items-center justify-center p-4">
           <div className="bg-[#141619] border border-[#c5a059]/40 p-8 rounded-sm max-w-md w-full shadow-2xl relative">
