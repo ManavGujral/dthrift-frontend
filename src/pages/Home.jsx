@@ -16,6 +16,17 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
+  // Checkout Info Modal States
+  const [showCheckoutModal, setShowCheckoutModal] = useState(false);
+  const [customerInfo, setCustomerInfo] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    address: "",
+    city: "",
+    pincode: "",
+  });
+
   const handleLogout = () => {
     setCurrentUser(null);
     localStorage.removeItem("token"); 
@@ -118,8 +129,31 @@ export default function Home({ products = [], onOrderSuccess }) {
 
   const totalAmount = cart.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0);
 
-  const handleCheckout = async () => {
+  // Called when user clicks "Proceed To Checkout" in Bag
+  const handleOpenCheckoutModal = () => {
     if (cart.length === 0) return;
+    
+    // Auto fill user details if logged in
+    if (currentUser) {
+      setCustomerInfo((prev) => ({
+        ...prev,
+        name: currentUser.name || "",
+        email: currentUser.email || "",
+      }));
+    }
+    
+    setIsCartOpen(false);
+    setShowCheckoutModal(true);
+  };
+
+  // Called after user completes customer info form
+  const handleCheckout = async (e) => {
+    if (e) e.preventDefault();
+
+    if (!customerInfo.name || !customerInfo.phone || !customerInfo.address) {
+      alert("Please fill in your Name, Mobile Number, and Delivery Address.");
+      return;
+    }
 
     if (!window.Razorpay) {
       alert("Razorpay SDK failed to load. Please check your internet connection.");
@@ -146,7 +180,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         name: "DTHRIFT",
         description: "Order Payment",
         order_id: orderData.id,
-        image: "/IMG_6260.PNG", // UPDATED: Now points to your company logo
+        image: "/IMG_6260.PNG",
         handler: async function (response) {
           try {
             const apiRes = await fetch("https://dthrift-backend.onrender.com/api/verify-payment", {
@@ -157,6 +191,7 @@ export default function Home({ products = [], onOrderSuccess }) {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 items: cart, 
+                customerDetails: customerInfo, // Dynamic delivery details sent to backend
               }),
             });
 
@@ -178,12 +213,15 @@ export default function Home({ products = [], onOrderSuccess }) {
             const newOrder = {
               id: orderData.id,
               paymentId: response.razorpay_payment_id,
-              customer: currentUser ? currentUser.name : "Verified Customer",
+              customer: customerInfo.name,
+              phone: customerInfo.phone,
+              email: customerInfo.email,
+              address: `${customerInfo.address}, ${customerInfo.city} - ${customerInfo.pincode}`,
               items: cart.map((i) => `${i.title} [${i.size}] (x${i.quantity})`).join(", "),
               itemCount: cart.reduce((acc, curr) => acc + curr.quantity, 0),
               amount: totalAmount,
               status: "Paid",
-              city: "India",
+              city: customerInfo.city || "India",
               date: new Date().toISOString().replace("T", " ").substring(0, 16),
             };
 
@@ -191,18 +229,18 @@ export default function Home({ products = [], onOrderSuccess }) {
               onOrderSuccess(newOrder, updatedProducts);
             }
 
-            alert(`Payment Successful! Order recorded live in PostgreSQL.`);
+            alert(`Payment Successful! Order recorded live in database.`);
             setCart([]);
-            setIsCartOpen(false);
+            setShowCheckoutModal(false);
           } catch (err) {
             console.error("Verification Error:", err);
             alert("Payment verified, but server record creation failed: " + err.message);
           }
         },
         prefill: {
-          contact: "", // HARDCODED NUMBER REMOVED HERE
-          name: currentUser ? currentUser.name : "",
-          email: currentUser ? currentUser.email : "",
+          contact: customerInfo.phone, // Dynamically prefills mobile number
+          name: customerInfo.name,     // Dynamically prefills name
+          email: customerInfo.email,   // Dynamically prefills email
         },
         theme: {
           color: "#c5a059",
@@ -420,6 +458,112 @@ export default function Home({ products = [], onOrderSuccess }) {
           onClose={() => setAuthMode(null)}
           onSwitchToSignup={() => setAuthMode("signup")}
         />
+      )}
+
+      {/* --- CUSTOMER SHIPPING & DETAILS MODAL --- */}
+      {showCheckoutModal && (
+        <div className="fixed inset-0 z-[1006] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
+          <div className="bg-[#141619] border border-[#c5a059]/40 max-w-lg w-full p-6 sm:p-8 rounded-sm relative shadow-2xl">
+            <button 
+              onClick={() => setShowCheckoutModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white text-xs font-mono cursor-pointer"
+            >
+              ✕ CLOSE
+            </button>
+
+            <span className="text-[9px] font-mono tracking-[0.4em] text-[#c5a059] uppercase block mb-1">
+              Step 1 of 2 // Shipping Info
+            </span>
+            <h3 className="text-xl font-serif tracking-widest text-white uppercase mb-6 border-b border-white/10 pb-3">
+              Delivery Details
+            </h3>
+
+            <form onSubmit={handleCheckout} className="space-y-4 font-mono text-xs">
+              <div>
+                <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">Full Name *</label>
+                <input 
+                  type="text" 
+                  required
+                  placeholder="JOHN DOE"
+                  value={customerInfo.name}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, name: e.target.value })}
+                  className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059] uppercase"
+                />
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">Mobile Number *</label>
+                  <input 
+                    type="tel" 
+                    required
+                    placeholder="9876543210"
+                    value={customerInfo.phone}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, phone: e.target.value })}
+                    className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059]"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">Email Address</label>
+                  <input 
+                    type="email" 
+                    placeholder="JOHN@EXAMPLE.COM"
+                    value={customerInfo.email}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, email: e.target.value })}
+                    className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">Shipping Address *</label>
+                <textarea 
+                  required
+                  rows="2"
+                  placeholder="HOUSE NO, STREET, AREA, LANDMARK"
+                  value={customerInfo.address}
+                  onChange={(e) => setCustomerInfo({ ...customerInfo, address: e.target.value })}
+                  className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059] uppercase resize-none"
+                />
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">City *</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="MUMBAI"
+                    value={customerInfo.city}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, city: e.target.value })}
+                    className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059] uppercase"
+                  />
+                </div>
+                <div>
+                  <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-1">Pincode *</label>
+                  <input 
+                    type="text" 
+                    required
+                    placeholder="400001"
+                    value={customerInfo.pincode}
+                    onChange={(e) => setCustomerInfo({ ...customerInfo, pincode: e.target.value })}
+                    className="w-full bg-black/60 border border-white/15 px-3 py-2.5 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059]"
+                  />
+                </div>
+              </div>
+
+              <div className="pt-4 border-t border-white/10 flex items-center justify-between">
+                <span className="text-gray-400 text-[10px]">TOTAL PAYABLE: <strong className="text-[#c5a059] text-sm">₹{totalAmount.toLocaleString("en-IN")}</strong></span>
+                <button
+                  type="submit"
+                  className="font-sans text-[10px] tracking-[0.3em] uppercase bg-[#c5a059] text-black px-6 py-3 font-semibold hover:bg-white transition-colors rounded-sm cursor-pointer"
+                >
+                  Proceed to Pay &rarr;
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
       )}
 
       {/* --- SEARCH OVERLAY MODAL --- */}
@@ -806,7 +950,7 @@ export default function Home({ products = [], onOrderSuccess }) {
                 <span className="text-xl font-mono text-[#c5a059]">₹{totalAmount.toLocaleString("en-IN")}</span>
               </div>
               <button
-                onClick={handleCheckout}
+                onClick={handleOpenCheckoutModal}
                 disabled={cart.length === 0}
                 className="w-full font-sans text-[10px] tracking-[0.35em] uppercase border border-[#c5a059] bg-[#c5a059] text-black py-4 hover:bg-transparent hover:text-[#c5a059] transition-all font-semibold disabled:opacity-50 active:scale-95 cursor-pointer"
               >
