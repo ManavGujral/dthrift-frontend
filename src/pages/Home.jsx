@@ -1015,16 +1015,16 @@ export default function Home({ products = [], onOrderSuccess }) {
             {
               id: "card-jackets",
               title: "JACKETS",
-              subtitle: "Leather, Bombers & Workwear",
+              subtitle: "Black Utility Vest",
               accent: "from-amber-950/40",
-              img: "https://images.unsplash.com/photo-1551028719-00167b16eac5?auto=format&fit=crop&q=80&w=1200",
+              img: "/images/IMG_6379.PNG",
             },
             {
               id: "card-hoodies",
               title: "HOODIES",
-              subtitle: "Heavyweight Fleeces & Washes",
+              subtitle: "Cream Baeina Hoodie",
               accent: "from-stone-900/40",
-              img: "https://images.unsplash.com/photo-1578768079052-aa76e52ff62e?auto=format&fit=crop&q=80&w=1200",
+              img: "/images/IMG_6513.PNG",
             },
             {
               id: "card-jeans",
