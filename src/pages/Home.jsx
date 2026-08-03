@@ -7,12 +7,15 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [loading, setLoading] = useState(true);
   const containerRef = useRef(null);
 
-  const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
   const [copied, setCopied] = useState(false);
   const [showContactModal, setShowContactModal] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  
+  // Tracking Modal States
+  const [showTrackingModal, setShowTrackingModal] = useState(false);
+  const [trackingId, setTrackingId] = useState("");
 
-  // Auth / Modal States ('signup' | 'login' | null)
+  // Auth / Modal States
   const [authMode, setAuthMode] = useState(null);
   const [currentUser, setCurrentUser] = useState(null);
 
@@ -44,7 +47,6 @@ export default function Home({ products = [], onOrderSuccess }) {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const [activeTab, setActiveTab] = useState("details");
 
-  // Free Size constant
   const selectedSize = "FREE SIZE";
 
   const PHONE_NUMBER = "+91 73872 02668";
@@ -129,11 +131,8 @@ export default function Home({ products = [], onOrderSuccess }) {
 
   const totalAmount = cart.reduce((acc, item) => acc + Number(item.price) * item.quantity, 0);
 
-  // Called when user clicks "Proceed To Checkout" in Bag
   const handleOpenCheckoutModal = () => {
     if (cart.length === 0) return;
-    
-    // Auto fill user details if logged in
     if (currentUser) {
       setCustomerInfo((prev) => ({
         ...prev,
@@ -141,12 +140,10 @@ export default function Home({ products = [], onOrderSuccess }) {
         email: currentUser.email || "",
       }));
     }
-    
     setIsCartOpen(false);
     setShowCheckoutModal(true);
   };
 
-  // Called after user completes customer info form
   const handleCheckout = async (e) => {
     if (e) e.preventDefault();
 
@@ -191,7 +188,7 @@ export default function Home({ products = [], onOrderSuccess }) {
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_signature: response.razorpay_signature,
                 items: cart, 
-                customerDetails: customerInfo, // Dynamic delivery details sent to backend
+                customerDetails: customerInfo,
               }),
             });
 
@@ -238,9 +235,9 @@ export default function Home({ products = [], onOrderSuccess }) {
           }
         },
         prefill: {
-          contact: customerInfo.phone, // Dynamically prefills mobile number
-          name: customerInfo.name,     // Dynamically prefills name
-          email: customerInfo.email,   // Dynamically prefills email
+          contact: customerInfo.phone, 
+          name: customerInfo.name,     
+          email: customerInfo.email,   
         },
         theme: {
           color: "#c5a059",
@@ -262,35 +259,23 @@ export default function Home({ products = [], onOrderSuccess }) {
     }
   };
 
-  useEffect(() => {
-    const targetDate = new Date("August 1, 2026 00:00:00").getTime();
-
-    const updateCountdown = () => {
-      const now = Date.now();
-      const diff = targetDate - now;
-
-      if (diff <= 0) {
-        setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-        return;
-      }
-
-      setTimeLeft({
-        days: Math.floor(diff / (1000 * 60 * 60 * 24)),
-        hours: Math.floor((diff / (1000 * 60 * 60)) % 24),
-        minutes: Math.floor((diff / (1000 * 60)) % 60),
-        seconds: Math.floor((diff / 1000) % 60),
-      });
-    };
-
-    updateCountdown();
-    const interval = setInterval(updateCountdown, 1000);
-    return () => clearInterval(interval);
-  }, []);
-
   const handleCopyPhone = () => {
     navigator.clipboard.writeText("+917387202668");
     setCopied(true);
     setTimeout(() => setCopied(false), 2500);
+  };
+
+  // Tracking form handler
+  const handleTrackOrder = (e) => {
+    e.preventDefault();
+    if (!trackingId.trim()) {
+      alert("Please enter a valid Order ID or Phone Number.");
+      return;
+    }
+    // Placeholder for actual tracking logic
+    alert(`Checking status for: ${trackingId}\nUpdates will be sent to your registered contact info.`);
+    setTrackingId("");
+    setShowTrackingModal(false);
   };
 
   useLayoutEffect(() => {
@@ -368,73 +353,112 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- HEADER --- */}
-      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] px-4 sm:px-10 py-4 grid grid-cols-3 items-center bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/10">
-        <div className="flex items-center gap-4 sm:gap-6 justify-start">
-          <button 
-            onClick={() => setIsMenuOpen(true)}
-            className="flex items-center gap-2 text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase cursor-pointer"
-          >
-            <span className="text-lg text-[#c5a059]">≡</span>
-            <span className="hidden sm:inline">MENU</span>
-          </button>
-
-          <button
-            onClick={() => setIsSearchOpen(true)}
-            className="text-xs font-mono tracking-widest text-gray-300 hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer"
-            title="Search"
-          >
-            <span className="sm:hidden text-sm">🔍</span>
-            <span className="hidden sm:inline">SEARCH</span>
-          </button>
+      {/* --- BRAND MATCHED NAVBAR --- */}
+      <header className="nav-animate fixed top-0 left-0 right-0 z-[999] bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/10 text-[#f1ece1]">
+        {/* Top Announcement Bar */}
+        <div className="w-full py-1.5 text-center text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-[#c5a059] border-b border-white/5 bg-black/40">
+          Orders Dispatch Within 24 Hours
         </div>
 
-        <div className="flex justify-center">
-          <a 
-            href="#" 
-            className="text-lg sm:text-2xl font-serif tracking-[0.25em] sm:tracking-[0.35em] text-[#f1ece1] uppercase font-bold hover:text-[#c5a059] transition-all text-center"
-          >
-            DTHRIFT
-          </a>
-        </div>
-
-        <div className="flex items-center gap-4 sm:gap-6 justify-end">
-          {currentUser ? (
-            <div className="relative group">
-              <button className="text-xs font-mono tracking-widest text-[#c5a059] transition-colors uppercase cursor-pointer py-1">
-                HI, {currentUser.name.split(" ")[0]} ▾
-              </button>
-              
-              <div className="absolute right-0 top-full w-36 bg-[#141619] border border-white/10 shadow-2xl rounded-sm hidden group-hover:block py-2 z-50">
-                <button
-                  onMouseDown={handleLogout}
-                  className="w-full text-left px-4 py-2 text-[10px] font-mono tracking-widest text-rose-400 hover:bg-white/5 transition-colors uppercase cursor-pointer"
-                >
-                  Log Out
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              onClick={() => setAuthMode("signup")}
-              className="text-xs font-mono tracking-widest text-gray-300 hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer"
-              title="Account"
+        {/* Main Navigation */}
+        <nav className="flex items-center justify-between px-4 sm:px-6 md:px-12 py-3.5">
+          
+          {/* Left: Brand Logo */}
+          <div className="w-1/4">
+            <button 
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+              className="font-serif text-2xl md:text-3xl font-black tracking-tighter uppercase text-[#f1ece1] hover:text-[#c5a059] transition-colors cursor-pointer"
             >
-              <span className="sm:hidden text-sm">👤</span>
-              <span className="hidden sm:inline">ACCOUNT</span>
+              DT
             </button>
-          )}
+          </div>
 
-          <button
-            onClick={() => setIsCartOpen(true)}
-            className="text-xs font-mono tracking-widest text-white hover:text-[#c5a059] transition-colors uppercase flex items-center gap-1.5 cursor-pointer bg-white/5 px-3 py-1.5 rounded-sm border border-white/10"
-          >
-            <span>BAG</span>
-            <span className="bg-[#c5a059] text-black text-[10px] px-1.5 py-0.2 font-bold rounded-full">
-              {cart.reduce((a, b) => a + b.quantity, 0)}
-            </span>
-          </button>
-        </div>
+          {/* Center: Reference Links */}
+          <div className="hidden md:flex w-2/4 justify-center space-x-8 text-xs font-mono tracking-widest uppercase text-gray-300">
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className="flex items-center gap-1.5 hover:text-[#c5a059] transition-colors cursor-pointer"
+            >
+              Collections 
+              <span className="text-[10px] text-[#c5a059]">▾</span>
+            </button>
+            <button 
+              onClick={() => setShowTrackingModal(true)}
+              className="hover:text-[#c5a059] transition-colors cursor-pointer"
+            >
+              Track Your Order
+            </button>
+            <button 
+              onClick={() => setShowContactModal(true)} 
+              className="hover:text-[#c5a059] transition-colors cursor-pointer"
+            >
+              Contact Us
+            </button>
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className="hover:text-[#c5a059] transition-colors cursor-pointer"
+            >
+              Shop All
+            </button>
+          </div>
+
+          {/* Right: Modern Action Icons */}
+          <div className="w-1/4 flex justify-end items-center space-x-5 text-[#f1ece1]">
+            {/* Search Icon */}
+            <button 
+              onClick={() => setIsSearchOpen(true)} 
+              className="hover:text-[#c5a059] transition-colors cursor-pointer p-1"
+              title="Search"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+              </svg>
+            </button>
+
+            {/* Account Icon */}
+            {currentUser ? (
+              <div className="relative group">
+                <button className="text-[10px] font-mono tracking-widest text-[#c5a059] font-bold uppercase cursor-pointer py-1">
+                  {currentUser.name.split(" ")[0]} ▾
+                </button>
+                <div className="absolute right-0 top-full w-32 bg-[#141619] border border-white/10 shadow-2xl rounded-sm hidden group-hover:block py-2 z-50">
+                  <button
+                    onMouseDown={handleLogout}
+                    className="w-full text-left px-4 py-2 text-[10px] font-mono tracking-widest text-rose-400 hover:bg-white/5 transition-colors uppercase cursor-pointer"
+                  >
+                    Log Out
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button 
+                onClick={() => setAuthMode("signup")} 
+                className="hover:text-[#c5a059] transition-colors cursor-pointer p-1"
+                title="Account"
+              >
+                <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                </svg>
+              </button>
+            )}
+
+            {/* Bag Icon */}
+            <button 
+              onClick={() => setIsCartOpen(true)} 
+              className="hover:text-[#c5a059] transition-colors cursor-pointer relative p-1"
+              title="Shopping Bag"
+            >
+              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l1 12H4L5 9z" />
+              </svg>
+              {cart.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-[#c5a059] text-black text-[9px] w-4 h-4 flex items-center justify-center rounded-full font-bold font-mono">
+                  {cart.reduce((a, b) => a + b.quantity, 0)}
+                </span>
+              )}
+            </button>
+          </div>
+        </nav>
       </header>
 
       {/* --- AUTH MODALS --- */}
@@ -460,7 +484,54 @@ export default function Home({ products = [], onOrderSuccess }) {
         />
       )}
 
-      {/* --- CUSTOMER SHIPPING & DETAILS MODAL --- */}
+      {/* --- TRACK ORDER MODAL --- */}
+      {showTrackingModal && (
+        <div className="fixed inset-0 z-[1006] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
+          <div className="bg-[#141619] border border-[#c5a059]/40 max-w-md w-full p-6 sm:p-8 rounded-sm relative shadow-2xl">
+            <button 
+              onClick={() => setShowTrackingModal(false)}
+              className="absolute top-4 right-4 text-gray-400 hover:text-white text-xs font-mono cursor-pointer"
+            >
+              ✕ CLOSE
+            </button>
+
+            <span className="text-[9px] font-mono tracking-[0.4em] text-[#c5a059] uppercase block mb-1">
+              Order Status
+            </span>
+            <h3 className="text-xl font-serif tracking-widest text-white uppercase mb-6 border-b border-white/10 pb-3">
+              Track Your Order
+            </h3>
+
+            <form onSubmit={handleTrackOrder} className="space-y-5 font-mono text-xs">
+              <div>
+                <label className="block text-gray-400 text-[10px] uppercase tracking-wider mb-2">
+                  Order ID or Mobile Number
+                </label>
+                <input 
+                  type="text" 
+                  autoFocus
+                  required
+                  placeholder="e.g., ORD-12345 or 9876543210"
+                  value={trackingId}
+                  onChange={(e) => setTrackingId(e.target.value)}
+                  className="w-full bg-black/60 border border-white/15 px-4 py-3 text-white placeholder-zinc-600 rounded-sm focus:outline-none focus:border-[#c5a059] uppercase"
+                />
+              </div>
+
+              <div className="pt-2">
+                <button
+                  type="submit"
+                  className="w-full font-sans text-[10px] tracking-[0.3em] uppercase bg-[#c5a059] text-black px-6 py-3.5 font-semibold hover:bg-white transition-colors rounded-sm cursor-pointer"
+                >
+                  Find Order &rarr;
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* --- CUSTOMER SHIPPING MODAL --- */}
       {showCheckoutModal && (
         <div className="fixed inset-0 z-[1006] bg-black/85 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
           <div className="bg-[#141619] border border-[#c5a059]/40 max-w-lg w-full p-6 sm:p-8 rounded-sm relative shadow-2xl">
@@ -961,54 +1032,38 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- MAIN PAGE CONTENT --- */}
-      <main className="pt-28 px-4 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
-        
-        {/* COUNTDOWN BANNER */}
-        <section 
-          className="reveal-item mb-12 border border-[#c5a059]/20 py-8 px-6 bg-gradient-to-r from-[#141619] via-[#1a1d22] to-[#141619] rounded-sm shadow-2xl relative overflow-hidden group"
-          aria-label="Launch Countdown"
-        >
-          <div className="flex flex-col lg:flex-row justify-between items-center max-w-7xl mx-auto gap-6 relative z-10">
-            <div className="text-center lg:text-left">
-              <div className="flex items-center justify-center lg:justify-start gap-2 mb-1">
-                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-ping"></span>
-                <span className="text-[9px] tracking-[0.4em] uppercase text-[#c5a059] font-mono font-medium">
-                  Exclusive Drop Sequence
-                </span>
-              </div>
-              <h2 className="text-base tracking-[0.35em] uppercase font-serif text-white">
-                Launching Soon
-              </h2>
-            </div>
+      {/* --- BRAND MATCHED HERO SECTION --- */}
+      <div className="pt-[76px] sm:pt-[88px] w-full">
+        <section className="reveal-item w-full bg-[#111315] min-h-[65vh] flex flex-col items-center justify-center py-16 md:py-24 px-4 overflow-hidden border-b border-white/10 relative">
+          
+          {/* Subtle background glow */}
+          <div className="absolute inset-0 bg-[#c5a059]/5 blur-3xl pointer-events-none" />
 
-            <div className="flex gap-6 sm:gap-10 font-sans" aria-live="polite">
-              {[
-                { label: "days", value: timeLeft.days },
-                { label: "hours", value: timeLeft.hours },
-                { label: "minutes", value: timeLeft.minutes },
-                { label: "seconds", value: timeLeft.seconds },
-              ].map((item) => (
-                <div key={item.label} className="flex flex-col items-center min-w-[50px]">
-                  <span className="text-2xl sm:text-3xl font-light tracking-widest text-[#f1ece1] tabular-nums font-mono">
-                    {String(item.value || "0").padStart(2, "0")}
-                  </span>
-                  <span className="text-[8px] uppercase tracking-[0.3em] text-[#c5a059] mt-1 font-mono">
-                    {item.label}
-                  </span>
-                </div>
-              ))}
-            </div>
+          {/* Top Massive Brand Text */}
+          <h1 className="text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.85] tracking-tighter uppercase mb-2 drop-shadow-2xl">
+            DTHRIFT
+          </h1>
 
-            <button 
-              onClick={() => setShowContactModal(true)}
-              className="font-sans text-[10px] tracking-[0.35em] uppercase border border-[#c5a059] bg-[#c5a059] text-black px-8 py-3.5 hover:bg-transparent hover:text-[#c5a059] transition-all duration-300 font-semibold active:scale-95 shadow-xl cursor-pointer"
-            >
-              Get Early Access
-            </button>
+          {/* Center Divider & Subtitle */}
+          <div className="flex items-center w-full max-w-4xl my-6 md:my-10 z-10 px-4">
+            <div className="flex-grow border-t border-[#c5a059]/40"></div>
+            <span className="px-4 md:px-8 text-[#c5a059] font-mono text-xs md:text-xl tracking-[0.4em] uppercase whitespace-nowrap">
+              Collection Live
+            </span>
+            <div className="flex-grow border-t border-[#c5a059]/40"></div>
           </div>
-        </section>
 
+          {/* Bottom Massive Text (UPDATED TO "CHECK NOW") */}
+          <h2 className="text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.8] tracking-tighter uppercase z-10 drop-shadow-2xl">
+            CHECK NOW
+          </h2>
+
+        </section>
+      </div>
+
+      {/* --- MAIN PAGE CONTENT --- */}
+      <main className="pt-16 px-4 sm:px-6 md:px-10 pb-12 max-w-[1920px] mx-auto">
+        
         {/* --- 4-COLUMN HERO GRID --- */}
         <section className="reveal-item grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {[
@@ -1083,7 +1138,7 @@ export default function Home({ products = [], onOrderSuccess }) {
           ))}
         </section>
 
-        {/* --- LUXURY BRAND STYLE FOOTER --- */}
+        {/* --- FOOTER --- */}
         <footer className="reveal-item mt-28 pt-16 pb-12 border-t border-white/10 bg-[#090a0b] text-gray-400 font-sans text-xs tracking-wider uppercase">
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12 mb-16">
             
@@ -1111,7 +1166,7 @@ export default function Home({ products = [], onOrderSuccess }) {
               <h4 className="text-[11px] font-mono tracking-[0.3em] text-[#c5a059]">Client Services</h4>
               <ul className="space-y-2.5 text-[11px] font-mono">
                 <li><button onClick={() => setShowContactModal(true)} className="hover:text-white transition-colors cursor-pointer">VIP Support & Inquiries</button></li>
-                <li><a href={INSTAGRAM_URL} target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors">Instagram Drops</a></li>
+                <li><button onClick={() => setShowTrackingModal(true)} className="hover:text-white transition-colors cursor-pointer">Track Your Order</button></li>
                 <li><button onClick={() => setAuthMode("signup")} className="hover:text-white transition-colors cursor-pointer">My Account</button></li>
               </ul>
             </div>
