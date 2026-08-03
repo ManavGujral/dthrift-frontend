@@ -353,7 +353,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- BRAND MATCHED NAVBAR --- */}
+      {/* --- UPDATED BRAND MATCHED NAVBAR --- */}
       <header className="nav-animate fixed top-0 left-0 right-0 z-[999] bg-[#0c0d0e]/95 backdrop-blur-md border-b border-white/10 text-[#f1ece1]">
         {/* Top Announcement Bar */}
         <div className="w-full py-1.5 text-center text-[10px] md:text-xs font-mono uppercase tracking-[0.25em] text-[#c5a059] border-b border-white/5 bg-black/40">
@@ -361,49 +361,71 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
 
         {/* Main Navigation */}
-        <nav className="flex items-center justify-between px-4 sm:px-6 md:px-12 py-3.5">
+        <nav className="flex items-center justify-between px-4 sm:px-6 md:px-12 py-3.5 relative">
           
-          {/* Left: Brand Logo */}
-          <div className="w-1/4">
+          {/* Left: Mobile Hamburger & Desktop Logo */}
+          <div className="w-1/4 flex items-center justify-start">
+            {/* Hamburger (Mobile Only) */}
+            <button 
+              onClick={() => setIsMenuOpen(true)}
+              className="md:hidden text-[#f1ece1] hover:text-[#c5a059] transition-colors p-1"
+              aria-label="Open Menu"
+            >
+              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1.5" d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+            {/* Logo (Desktop Only) */}
             <button 
               onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
-              className="font-serif text-2xl md:text-3xl font-black tracking-tighter uppercase text-[#f1ece1] hover:text-[#c5a059] transition-colors cursor-pointer"
+              className="hidden md:block font-serif text-3xl font-black tracking-tighter uppercase text-[#f1ece1] hover:text-[#c5a059] transition-colors cursor-pointer"
             >
               DT
             </button>
           </div>
 
-          {/* Center: Reference Links */}
-          <div className="hidden md:flex w-2/4 justify-center space-x-8 text-xs font-mono tracking-widest uppercase text-gray-300">
+          {/* Center: Mobile Logo & Desktop Links */}
+          <div className="w-2/4 flex justify-center">
+            {/* Logo (Mobile Only) - Perfectly centered */}
             <button 
-              onClick={() => setIsMenuOpen(true)}
-              className="flex items-center gap-1.5 hover:text-[#c5a059] transition-colors cursor-pointer"
+              onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} 
+              className="md:hidden font-serif text-2xl font-black tracking-tighter uppercase text-[#f1ece1] hover:text-[#c5a059] transition-colors cursor-pointer"
             >
-              Collections 
-              <span className="text-[10px] text-[#c5a059]">▾</span>
+              DT
             </button>
-            <button 
-              onClick={() => setShowTrackingModal(true)}
-              className="hover:text-[#c5a059] transition-colors cursor-pointer"
-            >
-              Track Your Order
-            </button>
-            <button 
-              onClick={() => setShowContactModal(true)} 
-              className="hover:text-[#c5a059] transition-colors cursor-pointer"
-            >
-              Contact Us
-            </button>
-            <button 
-              onClick={() => setIsMenuOpen(true)}
-              className="hover:text-[#c5a059] transition-colors cursor-pointer"
-            >
-              Shop All
-            </button>
+            
+            {/* Links (Desktop Only) */}
+            <div className="hidden md:flex space-x-8 text-xs font-mono tracking-widest uppercase text-gray-300">
+              <button 
+                onClick={() => setIsMenuOpen(true)}
+                className="flex items-center gap-1.5 hover:text-[#c5a059] transition-colors cursor-pointer"
+              >
+                Collections 
+                <span className="text-[10px] text-[#c5a059]">▾</span>
+              </button>
+              <button 
+                onClick={() => setShowTrackingModal(true)}
+                className="hover:text-[#c5a059] transition-colors cursor-pointer"
+              >
+                Track Your Order
+              </button>
+              <button 
+                onClick={() => setShowContactModal(true)} 
+                className="hover:text-[#c5a059] transition-colors cursor-pointer"
+              >
+                Contact Us
+              </button>
+              <button 
+                onClick={() => setIsMenuOpen(true)}
+                className="hover:text-[#c5a059] transition-colors cursor-pointer"
+              >
+                Shop All
+              </button>
+            </div>
           </div>
 
           {/* Right: Modern Action Icons */}
-          <div className="w-1/4 flex justify-end items-center space-x-5 text-[#f1ece1]">
+          <div className="w-1/4 flex justify-end items-center space-x-3 sm:space-x-5 text-[#f1ece1]">
             {/* Search Icon */}
             <button 
               onClick={() => setIsSearchOpen(true)} 
@@ -433,7 +455,7 @@ export default function Home({ products = [], onOrderSuccess }) {
             ) : (
               <button 
                 onClick={() => setAuthMode("signup")} 
-                className="hover:text-[#c5a059] transition-colors cursor-pointer p-1"
+                className="hover:text-[#c5a059] transition-colors cursor-pointer p-1 hidden sm:block"
                 title="Account"
               >
                 <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1023,7 +1045,7 @@ export default function Home({ products = [], onOrderSuccess }) {
               <button
                 onClick={handleOpenCheckoutModal}
                 disabled={cart.length === 0}
-                className="w-full font-sans text-[10px] tracking-[0.35em] uppercase border border-[#c5a059] bg-[#c5a059] text-black py-4 hover:bg-transparent hover:text-[#c5a059] transition-all font-semibold disabled:opacity-50 active:scale-95 cursor-pointer"
+                className="w-full font-sans text-[10px] tracking-[0.3em] uppercase border border-[#c5a059] bg-[#c5a059] text-black py-4 hover:bg-transparent hover:text-[#c5a059] transition-all font-semibold disabled:opacity-50 active:scale-95 cursor-pointer"
               >
                 Proceed To Checkout
               </button>
@@ -1033,8 +1055,10 @@ export default function Home({ products = [], onOrderSuccess }) {
       )}
 
       {/* --- BRAND MATCHED HERO SECTION --- */}
-      <div className="pt-[76px] sm:pt-[88px] w-full">
-        <section className="reveal-item w-full bg-[#111315] min-h-[65vh] flex flex-col items-center justify-center py-16 md:py-24 px-4 overflow-hidden border-b border-white/10 relative">
+      {/* Adjusted padding (pt-[60px] instead of pt-[76px]) so the hero doesn't start too far down */}
+      <div className="pt-[60px] sm:pt-[88px] w-full">
+        {/* Adjusted min-height (min-h-[45vh] on mobile) and padding (py-8 on mobile) to pull the text up */}
+        <section className="reveal-item w-full bg-[#111315] min-h-[45vh] md:min-h-[65vh] flex flex-col items-center justify-center py-8 md:py-24 px-4 overflow-hidden border-b border-white/10 relative">
           
           {/* Subtle background glow */}
           <div className="absolute inset-0 bg-[#c5a059]/5 blur-3xl pointer-events-none" />
@@ -1053,7 +1077,7 @@ export default function Home({ products = [], onOrderSuccess }) {
             <div className="flex-grow border-t border-[#c5a059]/40"></div>
           </div>
 
-          {/* Bottom Massive Text (UPDATED TO "CHECK NOW") */}
+          {/* Bottom Massive Text */}
           <h2 className="text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.8] tracking-tighter uppercase z-10 drop-shadow-2xl">
             CHECK NOW
           </h2>
