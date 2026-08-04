@@ -12,13 +12,14 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
   // State for the uploaded image file
   const [imageFile, setImageFile] = useState(null);
 
-  // Form State for Adding New Product
+  // Form State for Adding New Product (UPDATED: Added is_upcoming)
   const [newProduct, setNewProduct] = useState({
     title: "",
     category: "JACKETS",
     price: "",
     stock: "1",
     description: "",
+    is_upcoming: false, 
   });
 
   // --- FETCH PRODUCTS DIRECTLY FROM POSTGRESQL ---
@@ -62,7 +63,7 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
     setTimeout(() => setStatusMsg({ type: "", text: "" }), 4000);
   };
 
-  // --- ADD NEW PRODUCT TO POSTGRESQL (UPDATED FOR FILES) ---
+  // --- ADD NEW PRODUCT TO POSTGRESQL (UPDATED FOR FILES AND UPCOMING) ---
   const handleAddProduct = async (e) => {
     e.preventDefault();
     if (!newProduct.title || !newProduct.price) {
@@ -77,6 +78,9 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
     formData.append("price", Number(newProduct.price));
     formData.append("stock", Number(newProduct.stock) || 1);
     formData.append("description", newProduct.description);
+    
+    // Append the upcoming status boolean to the payload
+    formData.append("is_upcoming", newProduct.is_upcoming);
 
     // Append the actual file if the user selected one
     if (imageFile) {
@@ -93,7 +97,8 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
 
       if (res.ok) {
         showStatus("success", "Product successfully added to PostgreSQL database!");
-        setNewProduct({ title: "", category: "JACKETS", price: "", stock: "1", description: "" });
+        // Reset form including the upcoming boolean
+        setNewProduct({ title: "", category: "JACKETS", price: "", stock: "1", description: "", is_upcoming: false });
         setImageFile(null); // Clear the file selection
         // Reset the file input element visually
         document.getElementById("image-upload").value = ""; 
@@ -259,7 +264,7 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
               {products.map((item) => (
                 <div
                   key={item.id}
-                  className="bg-[#141619] border border-white/10 p-5 rounded-sm flex flex-col justify-between hover:border-[#c5a059]/50 transition-colors shadow-2xl"
+                  className="bg-[#141619] border border-white/10 p-5 rounded-sm flex flex-col justify-between hover:border-[#c5a059]/50 transition-colors shadow-2xl relative"
                 >
                   <div>
                     <div className="aspect-[4/3] overflow-hidden border border-white/10 mb-4 relative">
@@ -275,6 +280,13 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
                       <span className="absolute top-2 left-2 bg-black/80 text-[9px] font-mono text-[#c5a059] px-2 py-1 uppercase border border-white/10">
                         {item.category}
                       </span>
+                      
+                      {/* NEW: Upcoming Badge indicator for Admin */}
+                      {item.is_upcoming && (
+                        <span className="absolute top-2 right-2 bg-white text-black text-[9px] font-bold font-mono px-2 py-1 uppercase border border-white/10 tracking-wider">
+                          Upcoming
+                        </span>
+                      )}
                     </div>
 
                     <h3 className="font-serif text-base tracking-wider text-white uppercase mb-1">
@@ -400,6 +412,23 @@ export default function AdminDashboard({ products: initialProducts = [], setProd
                 onChange={(e) => setImageFile(e.target.files[0])}
                 className="w-full bg-black/50 border border-white/20 px-4 py-3 text-xs font-mono text-white focus:outline-none focus:border-[#c5a059]"
               />
+            </div>
+
+            {/* NEW: UPCOMING TOGGLE CHECKBOX */}
+            <div className="flex items-center bg-black/50 border border-white/20 px-4 py-3">
+              <input
+                type="checkbox"
+                id="upcoming-toggle"
+                checked={newProduct.is_upcoming}
+                onChange={(e) => setNewProduct({ ...newProduct, is_upcoming: e.target.checked })}
+                className="w-4 h-4 mr-3 bg-black/50 border-white/20 accent-[#c5a059] cursor-pointer"
+              />
+              <label 
+                htmlFor="upcoming-toggle" 
+                className="text-[10px] font-mono tracking-widest text-gray-300 uppercase cursor-pointer select-none"
+              >
+                Mark as "Upcoming" Release
+              </label>
             </div>
 
             <div>
