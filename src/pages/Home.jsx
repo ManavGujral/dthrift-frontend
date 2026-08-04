@@ -1105,31 +1105,40 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- BRAND MATCHED HERO SECTION --- */}
-      {/* Adjusted padding (pt-[60px] instead of pt-[76px]) so the hero doesn't start too far down */}
+      {/* --- BRAND MATCHED HERO SECTION WITH VIDEO --- */}
       <div className="pt-[60px] sm:pt-[88px] w-full">
-        {/* Adjusted min-height (min-h-[45vh] on mobile) and padding (py-8 on mobile) to pull the text up */}
-        <section className="reveal-item w-full bg-[#111315] min-h-[45vh] md:min-h-[65vh] flex flex-col items-center justify-center py-8 md:py-24 px-4 overflow-hidden border-b border-white/10 relative">
+        <section className="reveal-item w-full min-h-[45vh] md:min-h-[65vh] flex flex-col items-center justify-center py-8 md:py-24 px-4 overflow-hidden border-b border-white/10 relative bg-[#0c0d0e]">
           
-          {/* Subtle background glow */}
-          <div className="absolute inset-0 bg-[#c5a059]/5 blur-3xl pointer-events-none" />
+          {/* --- BACKGROUND VIDEO --- */}
+          <video 
+            autoPlay 
+            loop 
+            muted 
+            playsInline
+            className="absolute top-0 left-0 w-full h-full object-cover z-[1] opacity-50 grayscale"
+          >
+            {/* Highly reliable test video. Change this src to your local file later! */}
+            <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" type="video/mp4" />
+          </video>
 
-          {/* Top Massive Brand Text */}
-          <h1 className="text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.85] tracking-tighter uppercase mb-2 drop-shadow-2xl">
+          {/* --- DARK OVERLAYS (Sits on top of video, z-[2]) --- */}
+          <div className="absolute inset-0 bg-black/60 z-[2] pointer-events-none" />
+          <div className="absolute inset-0 bg-[#c5a059]/10 blur-3xl pointer-events-none z-[2]" />
+
+          {/* --- TEXT CONTENT (Sits on top of overlays, z-10) --- */}
+          <h1 className="relative z-10 text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.85] tracking-tighter uppercase mb-2 drop-shadow-2xl">
             DTHRIFT
           </h1>
 
-          {/* Center Divider & Subtitle */}
-          <div className="flex items-center w-full max-w-4xl my-6 md:my-10 z-10 px-4">
-            <div className="flex-grow border-t border-[#c5a059]/40"></div>
-            <span className="px-4 md:px-8 text-[#c5a059] font-mono text-xs md:text-xl tracking-[0.4em] uppercase whitespace-nowrap">
+          <div className="relative z-10 flex items-center w-full max-w-4xl my-6 md:my-10 px-4">
+            <div className="flex-grow border-t border-[#c5a059]/40 shadow-xl"></div>
+            <span className="px-4 md:px-8 text-[#c5a059] font-mono text-xs md:text-xl tracking-[0.4em] uppercase whitespace-nowrap drop-shadow-lg bg-black/20 py-1 rounded-sm backdrop-blur-sm">
               Collection Live
             </span>
-            <div className="flex-grow border-t border-[#c5a059]/40"></div>
+            <div className="flex-grow border-t border-[#c5a059]/40 shadow-xl"></div>
           </div>
 
-          {/* Bottom Massive Text */}
-          <h2 className="text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.8] tracking-tighter uppercase z-10 drop-shadow-2xl">
+          <h2 className="relative z-10 text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.8] tracking-tighter uppercase drop-shadow-2xl">
             CHECK NOW
           </h2>
 
