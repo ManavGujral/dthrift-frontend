@@ -115,6 +115,11 @@ export default function Home({ products = [], onOrderSuccess }) {
   };
 
   const addToCart = (product) => {
+    if (product.is_upcoming) {
+      alert("This item is an upcoming release and cannot be purchased yet!");
+      return;
+    }
+
     const currentStock = products.find((p) => p.id === product.id)?.stock || 0;
     const currentInCart = cart.find((item) => item.id === product.id)?.quantity || 0;
 
@@ -862,7 +867,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- CATEGORY EXPLORER MODAL --- */}
+      {/* --- CATEGORY EXPLORER MODAL (UPDATED FOR UPCOMING BADGE) --- */}
       {selectedCategory && (
         <div className="fixed inset-0 z-[1002] bg-black/95 backdrop-blur-md flex flex-col p-6 sm:p-12 overflow-y-auto animate-[fadeIn_0.3s_ease-out]">
           
@@ -899,11 +904,19 @@ export default function Home({ products = [], onOrderSuccess }) {
                       className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"
                       onError={(e) => handleImageError(e, item)}
                     />
-                    <span className={`absolute top-2 left-2 text-[10px] tracking-widest px-2.5 py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
-                      Number(item.stock) === 0 ? "bg-rose-950/90 text-rose-400 border-rose-500/50" : "bg-black/90 text-[#c5a059] border-white/20"
-                    }`}>
-                      {Number(item.stock) === 0 ? "SOLD OUT" : `Stock: ${item.stock} left`}
-                    </span>
+                    
+                    {/* CONDITIONAL BADGE LOGIC FOR UPCOMING OR STOCK */}
+                    {item.is_upcoming ? (
+                      <span className="absolute top-2 left-2 text-[10px] tracking-widest px-2.5 py-1 uppercase font-mono font-bold bg-white text-black border border-white shadow-lg">
+                        UPCOMING DROP
+                      </span>
+                    ) : (
+                      <span className={`absolute top-2 left-2 text-[10px] tracking-widest px-2.5 py-1 uppercase border backdrop-blur-sm font-mono font-bold ${
+                        Number(item.stock) === 0 ? "bg-rose-950/90 text-rose-400 border-rose-500/50" : "bg-black/90 text-[#c5a059] border-white/20"
+                      }`}>
+                        {Number(item.stock) === 0 ? "SOLD OUT" : `Stock: ${item.stock} left`}
+                      </span>
+                    )}
                   </div>
 
                   <div className="flex justify-between items-start pt-2">
@@ -925,7 +938,7 @@ export default function Home({ products = [], onOrderSuccess }) {
         </div>
       )}
 
-      {/* --- PRODUCT INSPECT MODAL --- */}
+      {/* --- PRODUCT INSPECT MODAL (UPDATED FOR UPCOMING DROPS) --- */}
       {selectedProduct && (
         <div className="fixed inset-0 z-[1003] bg-black/90 backdrop-blur-md flex items-center justify-center p-4 animate-[fadeIn_0.25s_ease-out]">
           <div className="bg-[#141619] border border-white/10 max-w-2xl w-full p-6 sm:p-8 rounded-sm relative grid grid-cols-1 md:grid-cols-2 gap-6 shadow-2xl animate-[scaleUp_0.3s_cubic-bezier(0.16,1,0.3,1)] max-h-[90vh] overflow-y-auto">
@@ -954,9 +967,15 @@ export default function Home({ products = [], onOrderSuccess }) {
                 className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
                 onError={(e) => handleImageError(e, selectedProduct)}
               />
-              <span className="absolute top-2 left-2 bg-black/80 text-[#c5a059] text-[9px] tracking-widest px-2.5 py-1 uppercase border border-white/10">
-                Stock: {products.find((p) => p.id === selectedProduct.id)?.stock || 0} Left
-              </span>
+              {selectedProduct.is_upcoming ? (
+                <span className="absolute top-2 left-2 bg-white text-black text-[9px] tracking-widest px-2.5 py-1 uppercase font-bold font-mono border border-white">
+                  UPCOMING DROP
+                </span>
+              ) : (
+                <span className="absolute top-2 left-2 bg-black/80 text-[#c5a059] text-[9px] tracking-widest px-2.5 py-1 uppercase border border-white/10">
+                  Stock: {products.find((p) => p.id === selectedProduct.id)?.stock || 0} Left
+                </span>
+              )}
             </div>
 
             <div className="flex flex-col justify-between">
@@ -1020,16 +1039,21 @@ export default function Home({ products = [], onOrderSuccess }) {
                 )}
               </div>
 
+              {/* ACTION BUTTON DISABLES FOR UPCOMING DROPS */}
               <button
                 onClick={() => {
                   addToCart(products.find((p) => p.id === selectedProduct.id) || selectedProduct);
                   setSelectedProduct(null);
                   setActiveTab("details");
                 }}
-                disabled={(products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0}
+                disabled={selectedProduct.is_upcoming || (products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0}
                 className="w-full font-sans text-[10px] tracking-[0.35em] uppercase border border-[#c5a059] bg-[#c5a059] text-black py-4 hover:bg-transparent hover:text-[#c5a059] transition-all font-semibold disabled:opacity-30 disabled:hover:bg-[#c5a059] disabled:hover:text-black active:scale-95 cursor-pointer"
               >
-                {(products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0 ? "OUT OF STOCK" : `Add To Bag (${selectedSize})`}
+                {selectedProduct.is_upcoming 
+                  ? "DROPPING SOON" 
+                  : (products.find((p) => p.id === selectedProduct.id)?.stock || 0) === 0 
+                  ? "OUT OF STOCK" 
+                  : `Add To Bag (${selectedSize})`}
               </button>
             </div>
           </div>
@@ -1117,15 +1141,14 @@ export default function Home({ products = [], onOrderSuccess }) {
             playsInline
             className="absolute top-0 left-0 w-full h-full object-cover z-[1] opacity-50 grayscale"
           >
-            {/* Highly reliable test video. Change this src to your local file later! */}
             <source src="https://storage.googleapis.com/gtv-videos-bucket/sample/ForBiggerMeltdowns.mp4" type="video/mp4" />
           </video>
 
-          {/* --- DARK OVERLAYS (Sits on top of video, z-[2]) --- */}
+          {/* --- DARK OVERLAYS --- */}
           <div className="absolute inset-0 bg-black/60 z-[2] pointer-events-none" />
           <div className="absolute inset-0 bg-[#c5a059]/10 blur-3xl pointer-events-none z-[2]" />
 
-          {/* --- TEXT CONTENT (Sits on top of overlays, z-10) --- */}
+          {/* --- TEXT CONTENT --- */}
           <h1 className="relative z-10 text-[#f1ece1] font-black text-[15vw] md:text-[12rem] leading-[0.85] tracking-tighter uppercase mb-2 drop-shadow-2xl">
             DTHRIFT
           </h1>
